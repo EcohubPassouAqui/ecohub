@@ -1,399 +1,412 @@
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/EcohubPassouAqui/ecohub/main/support/painel.lua"))()
+local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/EcohubPassouAqui/ecohub/main/support/painel.lua"))()
+UI = UI.init("Showcase", "v1.0.0", "SHOWCASE")
 
-local window = library:new({
-    name = "Eco Hub",
-    textsize = 12,
-    font = "RobotoMono",
-    color = Color3.fromRGB(138, 43, 226)
-})
+local AimOne, AimTwo = UI:AddTab("Aim", "Silent Aim") do
+    local Section = AimOne:AddSeperator("Silent Aim") do
+        local masterToggle = Section:AddToggle({
+            title = "Enabled",
+            desc = "This is a small tip which will appear when the user hovers over this toggle. It works on all elements",
+            callback = function(state)
+            end
+        })
 
-local watermark = window:watermark()
-watermark:update({
-    ["FPS"] = math.floor(1 / game:GetService("RunService").RenderStepped:Wait()),
-    ["Ping"] = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
-})
-watermark:toggle(true)
+        local fovToggle, fovColor
+        fovToggle, fovColor = Section:AddToggle({
+            title = "Display field of view",
+            checked = true,
+            callback = function(state)
+                fovColor.setColor(Color3.new(0,1,0))
+            end,
+            colorpicker = {
+                default = Color3.new(0,0.5,1),
+                callback = function(color)
+                end
+            }
+        })
 
-local page1 = window:page({
-    name = "Main"
-})
+        local slider = Section:AddSlider({
+            title = "Field of view",
+            values = {min=0,max=250,default=50},
+            callback = function(set)
+            end,
+        })
 
-local page2 = window:page({
-    name = "Combat"
-})
+        Section:AddToggle({
+            title = "Test slider return",
+            callback = function()
+                slider.setPercent(0.8)
+                wait(3)
+                slider.setValue(75)
+            end
+        })
 
-local page3 = window:page({
-    name = "Visuals"
-})
+        local bodyparts = { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Arm" }
+        local selection = Section:AddSelection({
+            title = "Bodyparts",
+            options = bodyparts,
+            callback = function(selected)
+            end
+        })
 
-local page4 = window:page({
-    name = "Misc"
-})
-
-local page5 = window:page({
-    name = "Settings"
-})
-
-page1:openpage()
-
-local section1 = page1:section({
-    name = "Player",
-    side = "left",
-    size = 250
-})
-
-local section2 = page1:section({
-    name = "Movement",
-    side = "right",
-    size = 250
-})
-
-local section3 = page2:section({
-    name = "Aimbot",
-    side = "left",
-    size = 300
-})
-
-local section4 = page2:section({
-    name = "Weapons",
-    side = "right",
-    size = 200
-})
-
-local section5 = page3:section({
-    name = "ESP",
-    side = "left",
-    size = 280
-})
-
-local section6 = page3:section({
-    name = "World",
-    side = "right",
-    size = 200
-})
-
-local section7 = page4:section({
-    name = "Automation",
-    side = "left",
-    size = 200
-})
-
-local section8 = page5:section({
-    name = "Configuration",
-    side = "left",
-    size = 380
-})
-
-local walkspeed_toggle = section1:toggle({
-    name = "WalkSpeed",
-    def = false,
-    pointer = "main/walkspeed",
-    callback = function(value)
-        if value then
-            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50
-        else
-            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
-        end
+        Section:AddToggle({
+            title = "Test selection",
+            callback = function()
+                selection.setDropdownExpanded(true)
+                wait(1)
+                selection.setSelected({1,2,5})
+                wait(2)
+                selection.setOptions({"carrot", "rhubarb", "olive"})
+            end
+        })
     end
-})
+    
+    local Section = AimTwo:AddSeperator("Tuning") do
+        Section:AddToggle({
+            title = "Do tuning"
+        })
 
-local walkspeed_slider = section1:slider({
-    name = "Speed Amount",
-    min = 16,
-    max = 200,
-    def = 50,
-    rounding = true,
-    pointer = "main/walkspeed_amount",
-    callback = function(value)
+        local fruit = {"lime", "lemon", "mango", "nut"}
+        local dropdown = Section:AddDropdown({
+            title = "Demonstrative dropdown",
+            options = fruit,
+            callback = function(selected, actual)
+            end
+        })
+
+        Section:AddToggle({
+            title = "Test dropdown",
+            callback = function()
+                dropdown.setDropdownExpanded(true)
+                wait(1)
+                dropdown.setSelected(3)
+                wait(2)
+                dropdown.setOptions({"carrot", "rhubarb", "olive"})
+            end
+        })
     end
-})
+end
 
-local jumppower_toggle = section1:toggle({
-    name = "JumpPower",
-    def = false,
-    pointer = "main/jumppower",
-    callback = function(value)
-        if value then
-            game.Players.LocalPlayer.Character.Humanoid.JumpPower = 100
-        else
-            game.Players.LocalPlayer.Character.Humanoid.JumpPower = 50
-        end
+local VisualsOne, VisualsTwo = UI:AddTab("Visuals", "ESP and Chams") do
+    local Section = VisualsOne:AddSeperator("ESP Settings") do
+        Section:AddToggle({
+            title = "Enabled",
+            desc = "Enable ESP features",
+            callback = function(state)
+            end
+        })
+
+        Section:AddToggle({
+            title = "Box ESP",
+            callback = function(state)
+            end,
+            colorpicker = {
+                default = Color3.new(1,1,1),
+                callback = function(color)
+                end
+            }
+        })
+
+        Section:AddToggle({
+            title = "Name ESP",
+            callback = function(state)
+            end
+        })
+
+        Section:AddSlider({
+            title = "Max Distance",
+            values = {min=100,max=5000,default=2000},
+            callback = function(set)
+            end
+        })
     end
-})
 
-local jumppower_slider = section1:slider({
-    name = "Jump Amount",
-    min = 50,
-    max = 300,
-    def = 100,
-    rounding = true,
-    pointer = "main/jumppower_amount",
-    callback = function(value)
+    local Section = VisualsTwo:AddSeperator("Chams") do
+        Section:AddToggle({
+            title = "Enabled",
+            callback = function(state)
+            end,
+            colorpicker = {
+                default = Color3.new(1,0,0),
+                callback = function(color)
+                end
+            }
+        })
+
+        Section:AddSlider({
+            title = "Transparency",
+            values = {min=0,max=100,default=50},
+            callback = function(set)
+            end
+        })
     end
-})
+end
 
-local god_toggle = section1:toggle({
-    name = "God Mode",
-    def = false,
-    pointer = "main/godmode",
-    callback = function(value)
+local MiscOne, MiscTwo = UI:AddTab("Misc", "Miscellaneous features") do
+    local Section = MiscOne:AddSeperator("Movement") do
+        Section:AddToggle({
+            title = "Speed Hack",
+            callback = function(state)
+            end
+        })
+
+        Section:AddSlider({
+            title = "Walk Speed",
+            values = {min=16,max=200,default=16},
+            callback = function(set)
+            end
+        })
+
+        Section:AddToggle({
+            title = "Jump Power",
+            callback = function(state)
+            end
+        })
+
+        Section:AddSlider({
+            title = "Jump Height",
+            values = {min=50,max=500,default=50},
+            callback = function(set)
+            end
+        })
     end
-})
 
-local noclip_toggle = section2:toggle({
-    name = "Noclip",
-    def = false,
-    pointer = "main/noclip",
-    callback = function(value)
+    local Section = MiscTwo:AddSeperator("Teleport") do
+        local locations = {"Spawn", "Base", "Shop", "Arena"}
+        Section:AddDropdown({
+            title = "Location",
+            options = locations,
+            callback = function(selected, actual)
+            end
+        })
+
+        Section:AddButton({
+            title = "Teleport",
+            desc = "Teleport to selected location",
+            callback = function()
+            end
+        })
     end
-})
+end
 
-local fly_toggle = section2:toggle({
-    name = "Fly",
-    def = false,
-    pointer = "main/fly",
-    callback = function(value)
+local SettingsOne, SettingsTwo = UI:AddTab("Settings", "UI Configuration") do
+    local Section = SettingsOne:AddSeperator("UI Settings") do
+        Section:AddToggle({
+            title = "Rainbow Mode",
+            callback = function(state)
+            end
+        })
+
+        local themes = {"Dark", "Light", "Blue", "Red"}
+        Section:AddDropdown({
+            title = "Theme",
+            options = themes,
+            default = 1,
+            callback = function(selected, actual)
+            end
+        })
+
+        Section:AddTextInput({
+            title = "UI Title",
+            placeholder = "Enter title",
+            callback = function(text)
+                UI:UpdateTitle(text)
+            end
+        })
+
+        Section:AddTextInput({
+            title = "Version",
+            placeholder = "Enter version",
+            callback = function(text)
+                UI:UpdateVersion(text)
+            end
+        })
     end
-})
 
-local fly_speed = section2:slider({
-    name = "Fly Speed",
-    min = 1,
-    max = 10,
-    def = 5,
-    rounding = true,
-    pointer = "main/flyspeed",
-    callback = function(value)
+    local Section = SettingsTwo:AddSeperator("Keybinds") do
+        Section:AddButton({
+            title = "Toggle UI",
+            desc = "Toggle UI visibility",
+            callback = function()
+                UI:ToggleGUI()
+            end
+        })
+
+        local keybinds = {"RightControl", "RightShift", "Insert", "Delete", "Home", "End"}
+        Section:AddDropdown({
+            title = "UI Keybind",
+            options = keybinds,
+            default = 1,
+            callback = function(selected, actual)
+                UI:SetKeybind(Enum.KeyCode[actual])
+            end
+        })
     end
-})
+end
 
-local inf_jump = section2:toggle({
-    name = "Infinite Jump",
-    def = false,
-    pointer = "main/infjump",
-    callback = function(value)
+UI:AddConfigTab("configs", "cfg")
+
+local CombatOne, CombatTwo = UI:AddTab("Combat", "Combat features") do
+    local Section = CombatOne:AddSeperator("Weapon Mods") do
+        Section:AddToggle({
+            title = "No Recoil",
+            callback = function(state)
+            end
+        })
+
+        Section:AddToggle({
+            title = "No Spread",
+            callback = function(state)
+            end
+        })
+
+        Section:AddToggle({
+            title = "Infinite Ammo",
+            callback = function(state)
+            end
+        })
+
+        Section:AddSlider({
+            title = "Fire Rate",
+            values = {min=1,max=10,default=1},
+            callback = function(set)
+            end
+        })
     end
-})
 
-local aimbot_toggle = section3:toggle({
-    name = "Enable Aimbot",
-    def = false,
-    pointer = "combat/aimbot",
-    callback = function(value)
+    local Section = CombatTwo:AddSeperator("Auto Actions") do
+        Section:AddToggle({
+            title = "Auto Shoot",
+            callback = function(state)
+            end
+        })
+
+        Section:AddToggle({
+            title = "Auto Reload",
+            callback = function(state)
+            end
+        })
+
+        local targets = {"Players", "NPCs", "Both"}
+        Section:AddSelection({
+            title = "Target Types",
+            options = targets,
+            default = {1},
+            callback = function(selected)
+            end
+        })
     end
-})
+end
 
-local aimbot_fov = section3:slider({
-    name = "FOV Size",
-    min = 10,
-    max = 500,
-    def = 150,
-    rounding = true,
-    pointer = "combat/aimbot_fov",
-    callback = function(value)
+local PlayerOne, PlayerTwo = UI:AddTab("Player", "Player modifications") do
+    local Section = PlayerOne:AddSeperator("Character") do
+        Section:AddToggle({
+            title = "God Mode",
+            callback = function(state)
+            end
+        })
+
+        Section:AddToggle({
+            title = "Infinite Stamina",
+            callback = function(state)
+            end
+        })
+
+        Section:AddSlider({
+            title = "Health",
+            values = {min=100,max=10000,default=100},
+            callback = function(set)
+            end
+        })
+
+        Section:AddToggle({
+            title = "No Fall Damage",
+            callback = function(state)
+            end
+        })
     end
-})
 
-local aimbot_smoothness = section3:slider({
-    name = "Smoothness",
-    min = 1,
-    max = 10,
-    def = 5,
-    rounding = true,
-    pointer = "combat/aimbot_smooth",
-    callback = function(value)
+    local Section = PlayerTwo:AddSeperator("Appearance") do
+        Section:AddTextInput({
+            title = "Username",
+            placeholder = "Enter username",
+            callback = function(text)
+            end
+        })
+
+        Section:AddToggle({
+            title = "Hide Name",
+            callback = function(state)
+            end
+        })
+
+        Section:AddToggle({
+            title = "Custom Color",
+            callback = function(state)
+            end,
+            colorpicker = {
+                default = Color3.new(1,1,1),
+                callback = function(color)
+                end
+            }
+        })
     end
-})
+end
 
-local aimbot_part = section3:dropdown({
-    name = "Target Part",
-    def = "Head",
-    options = {"Head", "Torso", "HumanoidRootPart"},
-    pointer = "combat/aimbot_part",
-    callback = function(value)
+local WorldOne, WorldTwo = UI:AddTab("World", "World modifications") do
+    local Section = WorldOne:AddSeperator("Environment") do
+        Section:AddToggle({
+            title = "Full Bright",
+            callback = function(state)
+            end
+        })
+
+        Section:AddToggle({
+            title = "No Fog",
+            callback = function(state)
+            end
+        })
+
+        Section:AddSlider({
+            title = "Time of Day",
+            values = {min=0,max=24,default=12},
+            callback = function(set)
+            end
+        })
+
+        local weather = {"Clear", "Rain", "Snow", "Storm"}
+        Section:AddDropdown({
+            title = "Weather",
+            options = weather,
+            callback = function(selected, actual)
+            end
+        })
     end
-})
 
-local aimbot_team = section3:toggle({
-    name = "Team Check",
-    def = true,
-    pointer = "combat/aimbot_team",
-    callback = function(value)
+    local Section = WorldTwo:AddSeperator("Physics") do
+        Section:AddSlider({
+            title = "Gravity",
+            values = {min=0,max=196,default=196},
+            callback = function(set)
+            end
+        })
+
+        Section:AddToggle({
+            title = "No Clip",
+            callback = function(state)
+            end
+        })
+
+        Section:AddToggle({
+            title = "Fly",
+            callback = function(state)
+            end
+        })
+
+        Section:AddSlider({
+            title = "Fly Speed",
+            values = {min=1,max=100,default=50},
+            callback = function(set)
+            end
+        })
     end
-})
-
-local aimbot_visible = section3:toggle({
-    name = "Visible Check",
-    def = true,
-    pointer = "combat/aimbot_visible",
-    callback = function(value)
-    end
-})
-
-local aimbot_keybind = section3:keybind({
-    name = "Aimbot Key",
-    def = Enum.UserInputType.MouseButton2,
-    pointer = "combat/aimbot_key",
-    callback = function(value)
-    end
-})
-
-local rapid_fire = section4:toggle({
-    name = "Rapid Fire",
-    def = false,
-    pointer = "combat/rapidfire",
-    callback = function(value)
-    end
-})
-
-local no_recoil = section4:toggle({
-    name = "No Recoil",
-    def = false,
-    pointer = "combat/norecoil",
-    callback = function(value)
-    end
-})
-
-local no_spread = section4:toggle({
-    name = "No Spread",
-    def = false,
-    pointer = "combat/nospread",
-    callback = function(value)
-    end
-})
-
-local inf_ammo = section4:toggle({
-    name = "Infinite Ammo",
-    def = false,
-    pointer = "combat/infammo",
-    callback = function(value)
-    end
-})
-
-local esp_toggle = section5:toggle({
-    name = "Enable ESP",
-    def = false,
-    pointer = "visuals/esp",
-    callback = function(value)
-    end
-})
-
-local esp_boxes = section5:toggle({
-    name = "Boxes",
-    def = true,
-    pointer = "visuals/esp_boxes",
-    callback = function(value)
-    end
-})
-
-local esp_names = section5:toggle({
-    name = "Names",
-    def = true,
-    pointer = "visuals/esp_names",
-    callback = function(value)
-    end
-})
-
-local esp_distance = section5:toggle({
-    name = "Distance",
-    def = true,
-    pointer = "visuals/esp_distance",
-    callback = function(value)
-    end
-})
-
-local esp_health = section5:toggle({
-    name = "Health Bar",
-    def = true,
-    pointer = "visuals/esp_health",
-    callback = function(value)
-    end
-})
-
-local esp_team = section5:toggle({
-    name = "Team Check",
-    def = true,
-    pointer = "visuals/esp_team",
-    callback = function(value)
-    end
-})
-
-local esp_color = section5:colorpicker({
-    name = "ESP Color",
-    def = Color3.fromRGB(138, 43, 226),
-    pointer = "visuals/esp_color",
-    callback = function(color)
-    end
-})
-
-local fullbright = section6:toggle({
-    name = "Fullbright",
-    def = false,
-    pointer = "visuals/fullbright",
-    callback = function(value)
-    end
-})
-
-local remove_fog = section6:toggle({
-    name = "Remove Fog",
-    def = false,
-    pointer = "visuals/removefog",
-    callback = function(value)
-    end
-})
-
-local fov_changer = section6:slider({
-    name = "FOV Changer",
-    min = 70,
-    max = 120,
-    def = 90,
-    rounding = true,
-    pointer = "visuals/fov",
-    callback = function(value)
-        workspace.CurrentCamera.FieldOfView = value
-    end
-})
-
-local auto_farm = section7:toggle({
-    name = "Auto Farm",
-    def = false,
-    pointer = "misc/autofarm",
-    callback = function(value)
-    end
-})
-
-local auto_collect = section7:toggle({
-    name = "Auto Collect",
-    def = false,
-    pointer = "misc/autocollect",
-    callback = function(value)
-    end
-})
-
-local anti_afk = section7:toggle({
-    name = "Anti AFK",
-    def = false,
-    pointer = "misc/antiafk",
-    callback = function(value)
-    end
-})
-
-local config_loader = section8:configloader({
-    folder = "EcoHub/Configs"
-})
-
-local theme_button = section8:button({
-    name = "Change Theme",
-    callback = function()
-        window:settheme("accent", Color3.fromRGB(138, 43, 226))
-    end
-})
-
-local destroy_gui = section8:button({
-    name = "Destroy GUI",
-    callback = function()
-        window.screen:Destroy()
-    end
-})
-
-window:setkey(Enum.KeyCode.RightShift)
+end
