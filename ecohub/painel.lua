@@ -1288,15 +1288,7 @@ function Library:CreateWindow(windowname, windowinfo)
 	Sidebar.ZIndex = 2
 	Corner(Sidebar, 8)
 
-	local SidebarTexture = Instance.new("ImageLabel")
-	SidebarTexture.Parent = Sidebar
-	SidebarTexture.BackgroundTransparency = 1
-	SidebarTexture.Image = "rbxassetid://112537363055720"
-	SidebarTexture.ImageTransparency = 0.55
-	SidebarTexture.ScaleType = Enum.ScaleType.Tile
-	SidebarTexture.TileSize = UDim2.new(0, 64, 0, 64)
-	SidebarTexture.Size = UDim2.new(1, 0, 1, 0)
-	SidebarTexture.ZIndex = 2
+
 
 	local SidebarFix = Instance.new("Frame")
 	SidebarFix.Parent = Sidebar
