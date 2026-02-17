@@ -1240,15 +1240,15 @@ function Library:CreateWindow(windowname, windowinfo)
 	TitleDot.BorderSizePixel = 0
 	TitleDot.AnchorPoint = Vector2.new(0, 0.5)
 	TitleDot.Position = UDim2.new(0, 10, 0.5, 0)
-	TitleDot.Size = UDim2.new(0, 6, 0, 6)
+	TitleDot.Size = UDim2.new(0, 10, 0, 10)
 	TitleDot.ZIndex = 3
-	Corner(TitleDot, 3)
+	Corner(TitleDot, 5)
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.Parent = TitleBar
 	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.Position = UDim2.new(0, 22, 0, 0)
-	TitleLabel.Size = UDim2.new(0.55, -22, 1, 0)
+	TitleLabel.Position = UDim2.new(0, 26, 0, 0)
+	TitleLabel.Size = UDim2.new(0.55, -26, 1, 0)
 	TitleLabel.Font = Enum.Font.GothamBold
 	TitleLabel.Text = windowname or "ecohub"
 	TitleLabel.TextColor3 = C.TEXT
