@@ -25,13 +25,15 @@ local COLORS = {
     TEXT        = Color3.fromRGB(235, 235, 235),
     TEXT_DIM    = Color3.fromRGB(130, 120, 155),
     TOGGLE_OFF  = Color3.fromRGB(25, 22, 36),
-    TOGGLE_ON   = Color3.fromRGB(140, 80, 255),
+    TOGGLE_ON   = Color3.fromRGB(50, 200, 90),
+    CHECK_ON    = Color3.fromRGB(40, 180, 75),
     BORDER      = Color3.fromRGB(38, 30, 58),
     SEP         = Color3.fromRGB(40, 32, 62),
+    KEY_BG      = Color3.fromRGB(20, 18, 30),
 }
 
-local function Tween(obj, props, t)
-    TweenService:Create(obj, TweenInfo.new(t or 0.12, Enum.EasingStyle.Quad), props):Play()
+local function Tween(obj, props, t, style)
+    TweenService:Create(obj, TweenInfo.new(t or 0.12, style or Enum.EasingStyle.Quad), props):Play()
 end
 
 local function MakeCorner(parent, radius)
@@ -63,6 +65,7 @@ function Library:CreateWindow(windowname, windowinfo)
     Main.BorderSizePixel = 0
     Main.Position = UDim2.new(0.25, 0, 0.25, 0)
     Main.Size = UDim2.new(0, 520, 0, 340)
+    Main.ClipsDescendants = true
     MakeCorner(Main, 8)
     MakeBorder(Main)
 
@@ -103,13 +106,21 @@ function Library:CreateWindow(windowname, windowinfo)
     VersionLabel.TextSize = 10
     VersionLabel.TextXAlignment = Enum.TextXAlignment.Right
 
+    local Body = Instance.new("Frame")
+    Body.Name = "Body"
+    Body.Parent = Main
+    Body.BackgroundTransparency = 1
+    Body.BorderSizePixel = 0
+    Body.Position = UDim2.new(0, 0, 0, 32)
+    Body.Size = UDim2.new(1, 0, 1, -32)
+
     local Sidebar = Instance.new("Frame")
     Sidebar.Name = "Sidebar"
-    Sidebar.Parent = Main
+    Sidebar.Parent = Body
     Sidebar.BackgroundColor3 = COLORS.SIDEBAR
     Sidebar.BorderSizePixel = 0
-    Sidebar.Position = UDim2.new(0, 0, 0, 32)
-    Sidebar.Size = UDim2.new(0, 120, 1, -32)
+    Sidebar.Position = UDim2.new(0, 0, 0, 0)
+    Sidebar.Size = UDim2.new(0, 120, 1, 0)
     MakeCorner(Sidebar, 8)
 
     local SidebarFix = Instance.new("Frame")
@@ -138,14 +149,17 @@ function Library:CreateWindow(windowname, windowinfo)
 
     local ContentArea = Instance.new("Frame")
     ContentArea.Name = "ContentArea"
-    ContentArea.Parent = Main
+    ContentArea.Parent = Body
     ContentArea.BackgroundTransparency = 1
     ContentArea.BorderSizePixel = 0
-    ContentArea.Position = UDim2.new(0, 126, 0, 36)
-    ContentArea.Size = UDim2.new(1, -130, 1, -40)
+    ContentArea.Position = UDim2.new(0, 126, 0, 4)
+    ContentArea.Size = UDim2.new(1, -130, 1, -8)
 
     local Pages = {}
     local ActiveTab = nil
+    local Minimized = false
+    local FullSize = UDim2.new(0, 520, 0, 340)
+    local MiniSize = UDim2.new(0, 520, 0, 32)
 
     local dragging, dragStart, startPos, dragInput
 
@@ -156,31 +170,45 @@ function Library:CreateWindow(windowname, windowinfo)
             startPos = Main.Position
         end
     end)
-
     TitleBar.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement then
             dragInput = input
         end
     end)
-
     UserInputService.InputChanged:Connect(function(input)
         if dragging and input == dragInput then
             local delta = input.Position - dragStart
             Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
-
     UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+    end)
+
+    TitleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton2 then
+            Minimized = not Minimized
+            if Minimized then
+                Tween(Main, {Size = MiniSize}, 0.22, Enum.EasingStyle.Quart)
+                Tween(Body, {Position = UDim2.new(0, 0, 1, 0)}, 0.18, Enum.EasingStyle.Quart)
+            else
+                Tween(Main, {Size = FullSize}, 0.22, Enum.EasingStyle.Quart)
+                Tween(Body, {Position = UDim2.new(0, 0, 0, 32)}, 0.18, Enum.EasingStyle.Quart)
+            end
         end
     end)
 
-    local PanelVisible = true
     UserInputService.InputBegan:Connect(function(input, gp)
         if input.KeyCode == Enum.KeyCode.LeftAlt or input.KeyCode == Enum.KeyCode.RightAlt then
-            PanelVisible = not PanelVisible
-            Main.Visible = PanelVisible
+            local PanelVisible = Main.Visible
+            if PanelVisible then
+                Tween(Main, {Size = MiniSize}, 0.2, Enum.EasingStyle.Quart)
+                task.delay(0.15, function() Main.Visible = false Main.Size = FullSize end)
+            else
+                Main.Visible = true
+                Main.Size = MiniSize
+                Tween(Main, {Size = FullSize}, 0.22, Enum.EasingStyle.Quart)
+            end
         end
     end)
 
@@ -191,6 +219,7 @@ function Library:CreateWindow(windowname, windowinfo)
         Tab.Name = "Tab_" .. pagename
         Tab.Parent = TabScroll
         Tab.BackgroundColor3 = COLORS.ELEMENT
+        Tab.BackgroundTransparency = 1
         Tab.BorderSizePixel = 0
         Tab.Size = UDim2.new(1, 0, 0, 28)
         Tab.AutoButtonColor = false
@@ -198,14 +227,14 @@ function Library:CreateWindow(windowname, windowinfo)
         Tab.Text = pagename
         Tab.TextColor3 = COLORS.TEXT_DIM
         Tab.TextSize = 11
-        Tab.BackgroundTransparency = 1
         MakeCorner(Tab, 5)
 
         local BottomLine = Instance.new("Frame")
         BottomLine.Parent = Tab
         BottomLine.BackgroundColor3 = COLORS.ACCENT
         BottomLine.BorderSizePixel = 0
-        BottomLine.Position = UDim2.new(0.1, 0, 1, -1)
+        BottomLine.AnchorPoint = Vector2.new(0.5, 1)
+        BottomLine.Position = UDim2.new(0.5, 0, 1, -1)
         BottomLine.Size = UDim2.new(0, 0, 0, 1)
         BottomLine.Visible = false
         MakeCorner(BottomLine, 1)
@@ -219,7 +248,6 @@ function Library:CreateWindow(windowname, windowinfo)
         PageFrame.Visible = false
 
         local PageScroll = Instance.new("ScrollingFrame")
-        PageScroll.Name = "Scroll"
         PageScroll.Parent = PageFrame
         PageScroll.BackgroundTransparency = 1
         PageScroll.BorderSizePixel = 0
@@ -248,32 +276,23 @@ function Library:CreateWindow(windowname, windowinfo)
                 Tween(p.Tab, {TextColor3 = COLORS.TEXT_DIM, BackgroundTransparency = 1}, 0.15)
                 p.BottomLine.Visible = false
             end
-
             PageFrame.Visible = true
-            PageFrame.Position = UDim2.new(0.04, 0, 0, 0)
-            PageFrame.BackgroundTransparency = 1
-
+            PageFrame.Position = UDim2.new(0.05, 0, 0, 0)
             Tween(PageFrame, {Position = UDim2.new(0, 0, 0, 0)}, 0.18)
             Tween(Tab, {TextColor3 = COLORS.TEXT, BackgroundTransparency = 0}, 0.15)
-
             BottomLine.Visible = true
             BottomLine.Size = UDim2.new(0, 0, 0, 1)
-            Tween(BottomLine, {Size = UDim2.new(0.8, 0, 0, 1)}, 0.2)
-
+            Tween(BottomLine, {Size = UDim2.new(0.8, 0, 0, 1)}, 0.22)
             PageScroll.CanvasPosition = Vector2.new(0, 0)
             ActiveTab = Tab
         end
 
         Tab.MouseButton1Click:Connect(SelectTab)
         Tab.MouseEnter:Connect(function()
-            if ActiveTab ~= Tab then
-                Tween(Tab, {BackgroundTransparency = 0, BackgroundColor3 = COLORS.HOVER}, 0.1)
-            end
+            if ActiveTab ~= Tab then Tween(Tab, {BackgroundTransparency = 0, BackgroundColor3 = COLORS.HOVER}, 0.1) end
         end)
         Tab.MouseLeave:Connect(function()
-            if ActiveTab ~= Tab then
-                Tween(Tab, {BackgroundTransparency = 1}, 0.1)
-            end
+            if ActiveTab ~= Tab then Tween(Tab, {BackgroundTransparency = 1}, 0.1) end
         end)
 
         if #Pages == 1 then SelectTab() end
@@ -315,8 +334,14 @@ function Library:CreateWindow(windowname, windowinfo)
             SecLine.BackgroundColor3 = COLORS.BORDER
             SecLine.BorderSizePixel = 0
             SecLine.AnchorPoint = Vector2.new(0, 0.5)
-            SecLine.Position = UDim2.new(0, 18, 0.5, 0)
-            SecLine.Size = UDim2.new(1, -22, 0, 1)
+            SecLine.Position = UDim2.new(0, 80, 0.5, 0)
+            SecLine.Size = UDim2.new(1, -90, 0, 1)
+
+            task.defer(function()
+                local tw = SecTitle.AbsoluteSize.X
+                SecLine.Position = UDim2.new(0, 14 + tw + 6, 0.5, 0)
+                SecLine.Size = UDim2.new(1, -(14 + tw + 10), 0, 1)
+            end)
 
             SecTitle:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
                 local tw = SecTitle.AbsoluteSize.X
@@ -373,7 +398,7 @@ function Library:CreateWindow(windowname, windowinfo)
                 btn.MouseLeave:Connect(function() Tween(f, {BackgroundColor3 = COLORS.ELEMENT}) end)
                 btn.MouseButton1Down:Connect(function()
                     Tween(f, {BackgroundColor3 = COLORS.ACCENT})
-                    Tween(btn, {TextColor3 = Color3.fromRGB(255, 255, 255)})
+                    Tween(btn, {TextColor3 = Color3.fromRGB(255,255,255)})
                     task.delay(0.14, function()
                         Tween(f, {BackgroundColor3 = COLORS.ELEMENT})
                         Tween(btn, {TextColor3 = COLORS.TEXT})
@@ -413,68 +438,79 @@ function Library:CreateWindow(windowname, windowinfo)
                 CheckBox.Parent = f
                 CheckBox.BackgroundColor3 = Enabled and COLORS.TOGGLE_ON or COLORS.TOGGLE_OFF
                 CheckBox.BorderSizePixel = 0
-                CheckBox.Position = UDim2.new(1, -(keybind ~= nil and 56 or 26), 0.5, -8)
+                CheckBox.Position = UDim2.new(1, -26, 0.5, -8)
                 CheckBox.Size = UDim2.new(0, 16, 0, 16)
                 MakeCorner(CheckBox, 4)
-                MakeBorder(CheckBox, Enabled and COLORS.ACCENT or COLORS.BORDER)
+                MakeBorder(CheckBox, Enabled and COLORS.CHECK_ON or COLORS.BORDER)
 
                 local CheckMark = Instance.new("TextLabel")
                 CheckMark.Parent = CheckBox
                 CheckMark.BackgroundTransparency = 1
                 CheckMark.Size = UDim2.new(1, 0, 1, 0)
                 CheckMark.Font = Enum.Font.GothamBold
-                CheckMark.Text = "v"
+                CheckMark.Text = "✓"
                 CheckMark.TextColor3 = Color3.fromRGB(255, 255, 255)
-                CheckMark.TextSize = 10
+                CheckMark.TextSize = 11
                 CheckMark.Visible = Enabled
 
-                if keybind ~= nil then
+                if keybind ~= nil or true then
                     local KeyBtn = Instance.new("TextButton")
                     KeyBtn.Parent = f
-                    KeyBtn.BackgroundColor3 = COLORS.TOGGLE_OFF
+                    KeyBtn.BackgroundColor3 = COLORS.KEY_BG
                     KeyBtn.BorderSizePixel = 0
-                    KeyBtn.Position = UDim2.new(1, -78, 0.5, -9)
-                    KeyBtn.Size = UDim2.new(0, 46, 0, 18)
+                    KeyBtn.Position = UDim2.new(1, -82, 0.5, -9)
+                    KeyBtn.Size = UDim2.new(0, 50, 0, 18)
                     KeyBtn.AutoButtonColor = false
                     KeyBtn.Font = Enum.Font.GothamSemibold
-                    KeyBtn.Text = CurrentKey and tostring(CurrentKey):gsub("Enum.KeyCode.","") or "NONE"
+                    KeyBtn.Text = CurrentKey and "[" .. tostring(CurrentKey):gsub("Enum.KeyCode.","") .. "]" or "[KEY]"
                     KeyBtn.TextColor3 = COLORS.TEXT_DIM
                     KeyBtn.TextSize = 8
                     MakeCorner(KeyBtn, 4)
+                    MakeBorder(KeyBtn, COLORS.BORDER)
 
                     KeyBtn.MouseButton1Click:Connect(function()
                         if Listening then return end
                         Listening = true
-                        KeyBtn.Text = "..."
+                        KeyBtn.Text = "[...]"
                         KeyBtn.TextColor3 = COLORS.ACCENT
+                        local s = KeyBtn:FindFirstChildOfClass("UIStroke")
+                        if s then s.Color = COLORS.ACCENT end
                     end)
 
                     UserInputService.InputBegan:Connect(function(input, gp)
                         if Listening and input.UserInputType == Enum.UserInputType.Keyboard then
                             if input.KeyCode ~= Enum.KeyCode.Escape then
                                 CurrentKey = input.KeyCode
-                                KeyBtn.Text = tostring(input.KeyCode):gsub("Enum.KeyCode.","")
+                                KeyBtn.Text = "[" .. tostring(input.KeyCode):gsub("Enum.KeyCode.","") .. "]"
                             else
                                 CurrentKey = nil
-                                KeyBtn.Text = "NONE"
+                                KeyBtn.Text = "[KEY]"
                             end
                             KeyBtn.TextColor3 = COLORS.TEXT_DIM
+                            local s = KeyBtn:FindFirstChildOfClass("UIStroke")
+                            if s then s.Color = COLORS.BORDER end
                             Listening = false
+                        end
+
+                        if not gp and not Listening and CurrentKey and input.KeyCode == CurrentKey then
+                            Enabled = not Enabled
+                            UpdateToggle()
+                            pcall(cb, Enabled)
                         end
                     end)
                 end
 
-                local function Update()
+                local function UpdateToggle()
                     Tween(CheckBox, {BackgroundColor3 = Enabled and COLORS.TOGGLE_ON or COLORS.TOGGLE_OFF})
                     local stroke = CheckBox:FindFirstChildOfClass("UIStroke")
-                    if stroke then stroke.Color = Enabled and COLORS.ACCENT or COLORS.BORDER end
+                    if stroke then stroke.Color = Enabled and COLORS.CHECK_ON or COLORS.BORDER end
                     CheckMark.Visible = Enabled
                 end
 
                 local HitBtn = Instance.new("TextButton")
                 HitBtn.Parent = f
                 HitBtn.BackgroundTransparency = 1
-                HitBtn.Size = UDim2.new(1, 0, 1, 0)
+                HitBtn.Size = UDim2.new(1, -88, 1, 0)
                 HitBtn.AutoButtonColor = false
                 HitBtn.Text = ""
 
@@ -483,20 +519,12 @@ function Library:CreateWindow(windowname, windowinfo)
                 HitBtn.MouseButton1Click:Connect(function()
                     if Listening then return end
                     Enabled = not Enabled
-                    Update()
+                    UpdateToggle()
                     pcall(cb, Enabled)
                 end)
 
-                UserInputService.InputBegan:Connect(function(input, gp)
-                    if not gp and CurrentKey and input.KeyCode == CurrentKey and not Listening then
-                        Enabled = not Enabled
-                        Update()
-                        pcall(cb, Enabled)
-                    end
-                end)
-
                 local ctrl = {}
-                function ctrl:Set(v) Enabled = v Update() pcall(cb, Enabled) end
+                function ctrl:Set(v) Enabled = v UpdateToggle() pcall(cb, Enabled) end
                 function ctrl:Get() return Enabled end
                 return ctrl
             end
@@ -527,16 +555,16 @@ function Library:CreateWindow(windowname, windowinfo)
                 CheckBox.Position = UDim2.new(1, -50, 0.5, -8)
                 CheckBox.Size = UDim2.new(0, 16, 0, 16)
                 MakeCorner(CheckBox, 4)
-                MakeBorder(CheckBox, Enabled and COLORS.ACCENT or COLORS.BORDER)
+                MakeBorder(CheckBox, Enabled and COLORS.CHECK_ON or COLORS.BORDER)
 
                 local CheckMark = Instance.new("TextLabel")
                 CheckMark.Parent = CheckBox
                 CheckMark.BackgroundTransparency = 1
                 CheckMark.Size = UDim2.new(1, 0, 1, 0)
                 CheckMark.Font = Enum.Font.GothamBold
-                CheckMark.Text = "v"
+                CheckMark.Text = "✓"
                 CheckMark.TextColor3 = Color3.fromRGB(255, 255, 255)
-                CheckMark.TextSize = 10
+                CheckMark.TextSize = 11
                 CheckMark.Visible = Enabled
 
                 local ColorBtn = Instance.new("TextButton")
@@ -576,7 +604,6 @@ function Library:CreateWindow(windowname, windowinfo)
                     {lbl="S", get=function() return S end, set=function(p) S=p end, mult=100},
                     {lbl="V", get=function() return V2 end, set=function(p) V2=p end, mult=100},
                 }
-
                 local panelH = #Channels * 26 + 8
 
                 for i, ch in ipairs(Channels) do
@@ -661,7 +688,7 @@ function Library:CreateWindow(windowname, windowinfo)
                 local function UpdateToggle()
                     Tween(CheckBox, {BackgroundColor3 = Enabled and COLORS.TOGGLE_ON or COLORS.TOGGLE_OFF})
                     local stroke = CheckBox:FindFirstChildOfClass("UIStroke")
-                    if stroke then stroke.Color = Enabled and COLORS.ACCENT or COLORS.BORDER end
+                    if stroke then stroke.Color = Enabled and COLORS.CHECK_ON or COLORS.BORDER end
                     CheckMark.Visible = Enabled
                 end
 
@@ -685,11 +712,7 @@ function Library:CreateWindow(windowname, windowinfo)
                 local ctrl = {}
                 function ctrl:SetToggle(v) Enabled = v UpdateToggle() end
                 function ctrl:GetToggle() return Enabled end
-                function ctrl:SetColor(c)
-                    CurrentColor = c
-                    H, S, V2 = Color3.toHSV(c)
-                    ColorBtn.BackgroundColor3 = c
-                end
+                function ctrl:SetColor(c) CurrentColor = c H,S,V2 = Color3.toHSV(c) ColorBtn.BackgroundColor3 = c end
                 function ctrl:GetColor() return CurrentColor end
                 return ctrl
             end
@@ -742,7 +765,6 @@ function Library:CreateWindow(windowname, windowinfo)
                 MakeCorner(Fill, 3)
 
                 local Dragging = false
-
                 local function UpdateSlider(px)
                     local pct = math.clamp((px - Track.AbsolutePosition.X) / Track.AbsoluteSize.X, 0, 1)
                     cur = math.floor(mn + (mx - mn) * pct)
@@ -753,9 +775,7 @@ function Library:CreateWindow(windowname, windowinfo)
 
                 Track.MouseButton1Down:Connect(function() Dragging = true end)
                 UserInputService.InputChanged:Connect(function(i)
-                    if Dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
-                        UpdateSlider(i.Position.X)
-                    end
+                    if Dragging and i.UserInputType == Enum.UserInputType.MouseMovement then UpdateSlider(i.Position.X) end
                 end)
                 UserInputService.InputEnded:Connect(function(i)
                     if i.UserInputType == Enum.UserInputType.MouseButton1 then Dragging = false end
@@ -896,13 +916,9 @@ function Library:CreateWindow(windowname, windowinfo)
                 DropScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
                 DropScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
-                local DropInner = Instance.new("UIListLayout")
-                DropInner.Parent = DropScroll
-                DropInner.SortOrder = Enum.SortOrder.LayoutOrder
-                DropInner.Padding = UDim.new(0, 2)
+                Instance.new("UIListLayout", DropScroll).Padding = UDim.new(0, 2)
 
-                local DropPad = Instance.new("UIPadding")
-                DropPad.Parent = DropScroll
+                local DropPad = Instance.new("UIPadding", DropScroll)
                 DropPad.PaddingTop = UDim.new(0, 4)
                 DropPad.PaddingBottom = UDim.new(0, 4)
                 DropPad.PaddingLeft = UDim.new(0, 4)
@@ -936,9 +952,7 @@ function Library:CreateWindow(windowname, windowinfo)
                 HitBtn.AutoButtonColor = false
                 HitBtn.ZIndex = 7
 
-                HitBtn.MouseButton1Click:Connect(function()
-                    if Open then CloseDD() else OpenDD() end
-                end)
+                HitBtn.MouseButton1Click:Connect(function() if Open then CloseDD() else OpenDD() end end)
                 HitBtn.MouseEnter:Connect(function() Tween(Header, {BackgroundColor3 = COLORS.HOVER}) end)
                 HitBtn.MouseLeave:Connect(function() Tween(Header, {BackgroundColor3 = COLORS.ELEMENT}) end)
 
@@ -995,7 +1009,7 @@ function Library:CreateWindow(windowname, windowinfo)
 
                 local KeyBtn = Instance.new("TextButton")
                 KeyBtn.Parent = f
-                KeyBtn.BackgroundColor3 = COLORS.TOGGLE_OFF
+                KeyBtn.BackgroundColor3 = COLORS.KEY_BG
                 KeyBtn.BorderSizePixel = 0
                 KeyBtn.Position = UDim2.new(1, -74, 0.5, -9)
                 KeyBtn.Size = UDim2.new(0, 64, 0, 18)
@@ -1037,10 +1051,7 @@ function Library:CreateWindow(windowname, windowinfo)
                 f.MouseLeave:Connect(function() Tween(f, {BackgroundColor3 = COLORS.ELEMENT}) end)
 
                 local ctrl = {}
-                function ctrl:Set(k)
-                    CurrentKey = k
-                    KeyBtn.Text = k and "[" .. tostring(k):gsub("Enum.KeyCode.","") .. "]" or "[NONE]"
-                end
+                function ctrl:Set(k) CurrentKey = k KeyBtn.Text = k and "[" .. tostring(k):gsub("Enum.KeyCode.","") .. "]" or "[NONE]" end
                 function ctrl:Get() return CurrentKey end
                 return ctrl
             end
@@ -1122,7 +1133,6 @@ function Library:CreateWindow(windowname, windowinfo)
                     {lbl="S", get=function() return S end, set=function(p) S=p end, mult=100},
                     {lbl="V", get=function() return V end, set=function(p) V=p end, mult=100},
                 }
-
                 local panelH = #Channels * 28 + 10
 
                 for i, ch in ipairs(Channels) do
