@@ -1211,7 +1211,7 @@ function Library:CreateWindow(windowname, windowinfo)
 	Main.BackgroundTransparency = 0
 	Main.BorderSizePixel = 0
 	Main.Position = UDim2.new(0.25, 0, 0.25, 0)
-	Main.Size = UDim2.new(0, 520, 0, 340)
+	Main.Size = UDim2.new(0, 550, 0, 350)
 	Main.ClipsDescendants = true
 	Corner(Main, 8)
 	MkStroke(Main)
@@ -1352,8 +1352,8 @@ function Library:CreateWindow(windowname, windowinfo)
 	end)
 
 	local Minimized = false
-	local FullSize = UDim2.new(0, 520, 0, 340)
-	local MiniSize = UDim2.new(0, 520, 0, 32)
+	local FullSize = UDim2.new(0, 550, 0, 350)
+	local MiniSize = UDim2.new(0, 550, 0, 32)
 
 	local function DoMinimize(toMin)
 		Minimized = toMin
