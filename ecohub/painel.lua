@@ -124,8 +124,8 @@ function Library:CreateWindow(windowname, windowinfo)
     TabScroll.Parent = Sidebar
     TabScroll.BackgroundTransparency = 1
     TabScroll.BorderSizePixel = 0
-    TabScroll.Position = UDim2.new(0, 6, 0, 8)
-    TabScroll.Size = UDim2.new(1, -12, 1, -16)
+    TabScroll.Position = UDim2.new(0, 6, 0, 6)
+    TabScroll.Size = UDim2.new(1, -12, 1, -12)
     TabScroll.ScrollBarThickness = 2
     TabScroll.ScrollBarImageColor3 = COLORS.ACCENT
     TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -134,15 +134,15 @@ function Library:CreateWindow(windowname, windowinfo)
     local TabLayout = Instance.new("UIListLayout")
     TabLayout.Parent = TabScroll
     TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    TabLayout.Padding = UDim.new(0, 4)
+    TabLayout.Padding = UDim.new(0, 3)
 
     local ContentArea = Instance.new("Frame")
     ContentArea.Name = "ContentArea"
     ContentArea.Parent = Main
     ContentArea.BackgroundTransparency = 1
     ContentArea.BorderSizePixel = 0
-    ContentArea.Position = UDim2.new(0, 126, 0, 38)
-    ContentArea.Size = UDim2.new(1, -132, 1, -44)
+    ContentArea.Position = UDim2.new(0, 126, 0, 36)
+    ContentArea.Size = UDim2.new(1, -130, 1, -40)
 
     local Pages = {}
     local ActiveTab = nil
@@ -177,7 +177,6 @@ function Library:CreateWindow(windowname, windowinfo)
     end)
 
     local PanelVisible = true
-
     UserInputService.InputBegan:Connect(function(input, gp)
         if input.KeyCode == Enum.KeyCode.LeftAlt or input.KeyCode == Enum.KeyCode.RightAlt then
             PanelVisible = not PanelVisible
@@ -199,29 +198,29 @@ function Library:CreateWindow(windowname, windowinfo)
         Tab.Text = pagename
         Tab.TextColor3 = COLORS.TEXT_DIM
         Tab.TextSize = 11
+        Tab.BackgroundTransparency = 1
         MakeCorner(Tab, 5)
 
         local BottomLine = Instance.new("Frame")
         BottomLine.Parent = Tab
         BottomLine.BackgroundColor3 = COLORS.ACCENT
         BottomLine.BorderSizePixel = 0
-        BottomLine.Position = UDim2.new(0, 4, 1, -1)
-        BottomLine.Size = UDim2.new(1, -8, 0, 1)
+        BottomLine.Position = UDim2.new(0.1, 0, 1, -1)
+        BottomLine.Size = UDim2.new(0, 0, 0, 1)
         BottomLine.Visible = false
         MakeCorner(BottomLine, 1)
 
-        local Indicator = Instance.new("Frame")
-        Indicator.Parent = Tab
-        Indicator.BackgroundColor3 = COLORS.ACCENT
-        Indicator.BorderSizePixel = 0
-        Indicator.Position = UDim2.new(0, 0, 0.2, 0)
-        Indicator.Size = UDim2.new(0, 2, 0.6, 0)
-        Indicator.Visible = false
-        MakeCorner(Indicator, 2)
+        local PageFrame = Instance.new("Frame")
+        PageFrame.Name = "Page_" .. pagename
+        PageFrame.Parent = ContentArea
+        PageFrame.BackgroundTransparency = 1
+        PageFrame.BorderSizePixel = 0
+        PageFrame.Size = UDim2.new(1, 0, 1, 0)
+        PageFrame.Visible = false
 
         local PageScroll = Instance.new("ScrollingFrame")
-        PageScroll.Name = "Page_" .. pagename
-        PageScroll.Parent = ContentArea
+        PageScroll.Name = "Scroll"
+        PageScroll.Parent = PageFrame
         PageScroll.BackgroundTransparency = 1
         PageScroll.BorderSizePixel = 0
         PageScroll.Size = UDim2.new(1, 0, 1, 0)
@@ -229,7 +228,6 @@ function Library:CreateWindow(windowname, windowinfo)
         PageScroll.ScrollBarImageColor3 = COLORS.ACCENT
         PageScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
         PageScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        PageScroll.Visible = false
 
         local PageLayout = Instance.new("UIListLayout")
         PageLayout.Parent = PageScroll
@@ -242,31 +240,40 @@ function Library:CreateWindow(windowname, windowinfo)
         PagePad.PaddingBottom = UDim.new(0, 6)
         PagePad.PaddingRight = UDim.new(0, 2)
 
-        table.insert(Pages, {Tab=Tab, Page=PageScroll, Indicator=Indicator, BottomLine=BottomLine})
+        table.insert(Pages, {Tab=Tab, Page=PageFrame, Scroll=PageScroll, BottomLine=BottomLine})
 
         local function SelectTab()
             for _, p in pairs(Pages) do
                 p.Page.Visible = false
-                p.Tab.TextColor3 = COLORS.TEXT_DIM
-                Tween(p.Tab, {BackgroundColor3 = COLORS.ELEMENT})
-                p.Indicator.Visible = false
+                Tween(p.Tab, {TextColor3 = COLORS.TEXT_DIM, BackgroundTransparency = 1}, 0.15)
                 p.BottomLine.Visible = false
             end
-            PageScroll.Visible = true
-            Tab.TextColor3 = COLORS.TEXT
-            Tween(Tab, {BackgroundColor3 = COLORS.ACTIVE})
-            Indicator.Visible = true
+
+            PageFrame.Visible = true
+            PageFrame.Position = UDim2.new(0.04, 0, 0, 0)
+            PageFrame.BackgroundTransparency = 1
+
+            Tween(PageFrame, {Position = UDim2.new(0, 0, 0, 0)}, 0.18)
+            Tween(Tab, {TextColor3 = COLORS.TEXT, BackgroundTransparency = 0}, 0.15)
+
             BottomLine.Visible = true
+            BottomLine.Size = UDim2.new(0, 0, 0, 1)
+            Tween(BottomLine, {Size = UDim2.new(0.8, 0, 0, 1)}, 0.2)
+
             PageScroll.CanvasPosition = Vector2.new(0, 0)
             ActiveTab = Tab
         end
 
         Tab.MouseButton1Click:Connect(SelectTab)
         Tab.MouseEnter:Connect(function()
-            if ActiveTab ~= Tab then Tween(Tab, {BackgroundColor3 = COLORS.HOVER}) end
+            if ActiveTab ~= Tab then
+                Tween(Tab, {BackgroundTransparency = 0, BackgroundColor3 = COLORS.HOVER}, 0.1)
+            end
         end)
         Tab.MouseLeave:Connect(function()
-            if ActiveTab ~= Tab then Tween(Tab, {BackgroundColor3 = COLORS.ELEMENT}) end
+            if ActiveTab ~= Tab then
+                Tween(Tab, {BackgroundTransparency = 1}, 0.1)
+            end
         end)
 
         if #Pages == 1 then SelectTab() end
@@ -281,36 +288,58 @@ function Library:CreateWindow(windowname, windowinfo)
             SectionOuter.BorderSizePixel = 0
             SectionOuter.Size = UDim2.new(1, 0, 0, 0)
             SectionOuter.AutomaticSize = Enum.AutomaticSize.Y
-            MakeCorner(SectionOuter, 7)
+            MakeCorner(SectionOuter, 6)
             MakeBorder(SectionOuter)
 
+            local SecHeader = Instance.new("Frame")
+            SecHeader.Parent = SectionOuter
+            SecHeader.BackgroundTransparency = 1
+            SecHeader.BorderSizePixel = 0
+            SecHeader.Position = UDim2.new(0, 0, 0, 0)
+            SecHeader.Size = UDim2.new(1, 0, 0, 22)
+
+            local SecTitle = Instance.new("TextLabel")
+            SecTitle.Parent = SecHeader
+            SecTitle.BackgroundTransparency = 1
+            SecTitle.Position = UDim2.new(0, 10, 0, 0)
+            SecTitle.Size = UDim2.new(0, 0, 1, 0)
+            SecTitle.AutomaticSize = Enum.AutomaticSize.X
+            SecTitle.Font = Enum.Font.GothamSemibold
+            SecTitle.Text = sectionname
+            SecTitle.TextColor3 = COLORS.TEXT_DIM
+            SecTitle.TextSize = 10
+            SecTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+            local SecLine = Instance.new("Frame")
+            SecLine.Parent = SecHeader
+            SecLine.BackgroundColor3 = COLORS.BORDER
+            SecLine.BorderSizePixel = 0
+            SecLine.AnchorPoint = Vector2.new(0, 0.5)
+            SecLine.Position = UDim2.new(0, 18, 0.5, 0)
+            SecLine.Size = UDim2.new(1, -22, 0, 1)
+
+            SecTitle:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+                local tw = SecTitle.AbsoluteSize.X
+                SecLine.Position = UDim2.new(0, 14 + tw + 6, 0.5, 0)
+                SecLine.Size = UDim2.new(1, -(14 + tw + 10), 0, 1)
+            end)
+
+            local SecContent = Instance.new("Frame")
+            SecContent.Parent = SectionOuter
+            SecContent.BackgroundTransparency = 1
+            SecContent.BorderSizePixel = 0
+            SecContent.Position = UDim2.new(0, 0, 0, 22)
+            SecContent.Size = UDim2.new(1, 0, 0, 0)
+            SecContent.AutomaticSize = Enum.AutomaticSize.Y
+
             local SecPad = Instance.new("UIPadding")
-            SecPad.Parent = SectionOuter
-            SecPad.PaddingTop = UDim.new(0, 30)
+            SecPad.Parent = SecContent
             SecPad.PaddingBottom = UDim.new(0, 6)
             SecPad.PaddingLeft = UDim.new(0, 5)
             SecPad.PaddingRight = UDim.new(0, 5)
 
-            local SecTitle = Instance.new("TextLabel")
-            SecTitle.Parent = SectionOuter
-            SecTitle.BackgroundTransparency = 1
-            SecTitle.Position = UDim2.new(0, 10, 0, 0)
-            SecTitle.Size = UDim2.new(1, -10, 0, 28)
-            SecTitle.Font = Enum.Font.GothamBold
-            SecTitle.Text = sectionname
-            SecTitle.TextColor3 = COLORS.ACCENT
-            SecTitle.TextSize = 10
-            SecTitle.TextXAlignment = Enum.TextXAlignment.Left
-
-            local SecDivider = Instance.new("Frame")
-            SecDivider.Parent = SectionOuter
-            SecDivider.BackgroundColor3 = COLORS.BORDER
-            SecDivider.BorderSizePixel = 0
-            SecDivider.Position = UDim2.new(0, 10, 0, 26)
-            SecDivider.Size = UDim2.new(1, -20, 0, 1)
-
             local SecLayout = Instance.new("UIListLayout")
-            SecLayout.Parent = SectionOuter
+            SecLayout.Parent = SecContent
             SecLayout.SortOrder = Enum.SortOrder.LayoutOrder
             SecLayout.Padding = UDim.new(0, 4)
 
@@ -318,7 +347,7 @@ function Library:CreateWindow(windowname, windowinfo)
 
             local function makeBase(height, color)
                 local f = Instance.new("Frame")
-                f.Parent = SectionOuter
+                f.Parent = SecContent
                 f.BackgroundColor3 = color or COLORS.ELEMENT
                 f.BorderSizePixel = 0
                 f.Size = UDim2.new(1, 0, 0, height)
@@ -355,7 +384,7 @@ function Library:CreateWindow(windowname, windowinfo)
 
             function SecObj:addSeparator()
                 local f = Instance.new("Frame")
-                f.Parent = SectionOuter
+                f.Parent = SecContent
                 f.BackgroundColor3 = COLORS.SEP
                 f.BorderSizePixel = 0
                 f.Size = UDim2.new(1, 0, 0, 1)
@@ -438,9 +467,7 @@ function Library:CreateWindow(windowname, windowinfo)
                 local function Update()
                     Tween(CheckBox, {BackgroundColor3 = Enabled and COLORS.TOGGLE_ON or COLORS.TOGGLE_OFF})
                     local stroke = CheckBox:FindFirstChildOfClass("UIStroke")
-                    if stroke then
-                        stroke.Color = Enabled and COLORS.ACCENT or COLORS.BORDER
-                    end
+                    if stroke then stroke.Color = Enabled and COLORS.ACCENT or COLORS.BORDER end
                     CheckMark.Visible = Enabled
                 end
 
@@ -537,10 +564,6 @@ function Library:CreateWindow(windowname, windowinfo)
                 Panel.ZIndex = 10
                 MakeCorner(Panel, 5)
                 MakeBorder(Panel)
-
-                local function ToHex(c)
-                    return string.format("#%02X%02X%02X", math.floor(c.R*255), math.floor(c.G*255), math.floor(c.B*255))
-                end
 
                 local function Refresh()
                     CurrentColor = Color3.fromHSV(H, S, V2)
@@ -801,7 +824,7 @@ function Library:CreateWindow(windowname, windowinfo)
                 local Open = false
 
                 local Wrapper = Instance.new("Frame")
-                Wrapper.Parent = SectionOuter
+                Wrapper.Parent = SecContent
                 Wrapper.BackgroundTransparency = 1
                 Wrapper.BorderSizePixel = 0
                 Wrapper.Size = UDim2.new(1, 0, 0, 28)
@@ -1029,7 +1052,7 @@ function Library:CreateWindow(windowname, windowinfo)
                 local Open = false
 
                 local Wrapper = Instance.new("Frame")
-                Wrapper.Parent = SectionOuter
+                Wrapper.Parent = SecContent
                 Wrapper.BackgroundTransparency = 1
                 Wrapper.BorderSizePixel = 0
                 Wrapper.Size = UDim2.new(1, 0, 0, 28)
