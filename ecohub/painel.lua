@@ -428,14 +428,9 @@ local function BuildSection(sectionname, PageScroll)
 
 	local SecObj = {}
 
-	function SecObj:addButton(name, callback, iconName)
+	function SecObj:addButton(name, callback)
 		local cb = callback or function() end
 		local f = Base(28)
-		local padLeft = 0
-		if iconName then
-			local ic = MkIcon(f, iconName, UDim2.new(0, 13, 0, 13), 8, 0, C.TEXT, 0, 0.5)
-			if ic then padLeft = 22 end
-		end
 		local btn = Instance.new("TextButton")
 		btn.Parent = f
 		btn.BackgroundTransparency = 1
@@ -445,14 +440,7 @@ local function BuildSection(sectionname, PageScroll)
 		btn.Text = name or "Button"
 		btn.TextColor3 = C.TEXT
 		btn.TextSize = 11
-		if padLeft > 0 then
-			btn.TextXAlignment = Enum.TextXAlignment.Left
-			local p = Instance.new("UIPadding")
-			p.PaddingLeft = UDim.new(0, padLeft + 4)
-			p.Parent = btn
-		else
-			btn.TextXAlignment = Enum.TextXAlignment.Center
-		end
+		btn.TextXAlignment = Enum.TextXAlignment.Center
 		btn.MouseEnter:Connect(function() Tw(f, {BackgroundColor3 = C.HOVER}) end)
 		btn.MouseLeave:Connect(function() Tw(f, {BackgroundColor3 = C.ELEM}) end)
 		btn.MouseButton1Down:Connect(function()
@@ -613,25 +601,21 @@ local function BuildSection(sectionname, PageScroll)
 		return ctrl
 	end
 
-	function SecObj:addToggle(togglename, default, callback, defaultKey, iconName)
-		return ToggleCore(togglename, default, callback, true, defaultKey, iconName)
+	function SecObj:addToggle(togglename, default, callback, defaultKey)
+		return ToggleCore(togglename, default, callback, true, defaultKey, nil)
 	end
 
-	function SecObj:addToggleSimple(togglename, default, callback, iconName)
-		return ToggleCore(togglename, default, callback, false, nil, iconName)
+	function SecObj:addToggleSimple(togglename, default, callback)
+		return ToggleCore(togglename, default, callback, false, nil, nil)
 	end
 
-	function SecObj:addSlider(name, mn, mx, def, callback, iconName)
+	function SecObj:addSlider(name, mn, mx, def, callback)
 		local cb = callback or function() end
 		mn  = tonumber(mn) or 0
 		mx  = tonumber(mx) or 100
 		local cur = math.clamp(tonumber(def) or mn, mn, mx)
 
 		local f = Base(50)
-
-		if iconName then
-			MkIcon(f, iconName, UDim2.new(0, 12, 0, 12), 8, 0, C.ACCENT, 0, 0.5)
-		end
 
 		local NL = Instance.new("TextLabel")
 		NL.Parent = f
@@ -739,54 +723,61 @@ local function BuildSection(sectionname, PageScroll)
 		return ctrl
 	end
 
-	function SecObj:addTextBox(name, placeholder, callback, iconName)
+	function SecObj:addTextBox(name, placeholder, callback)
 		local cb = callback or function() end
-		local f = Base(28)
-
-		if iconName then
-			MkIcon(f, iconName, UDim2.new(0, 12, 0, 12), 7, 0, C.DIM, 0, 0.5)
-		end
+		local f = Base(44)
 
 		local NL = Instance.new("TextLabel")
 		NL.Parent = f
 		NL.BackgroundTransparency = 1
-		NL.Position = UDim2.new(0, 10, 0, 0)
-		NL.Size = UDim2.new(0.52, 0, 1, 0)
+		NL.Position = UDim2.new(0, 10, 0, 4)
+		NL.Size = UDim2.new(1, -20, 0, 14)
 		NL.Font = Enum.Font.GothamSemibold
 		NL.Text = name or "TextBox"
 		NL.TextColor3 = C.TEXT
 		NL.TextSize = 11
 		NL.TextXAlignment = Enum.TextXAlignment.Left
 
+		local InputWrap = Instance.new("Frame")
+		InputWrap.Parent = f
+		InputWrap.BackgroundColor3 = C.SLIDERBG
+		InputWrap.BorderSizePixel = 0
+		InputWrap.Position = UDim2.new(0, 8, 0, 22)
+		InputWrap.Size = UDim2.new(1, -16, 0, 16)
+		Corner(InputWrap, 4)
+		local wrapStroke = MkStroke(InputWrap, C.BORDER, 1)
+
 		local Input = Instance.new("TextBox")
-		Input.Parent = f
-		Input.BackgroundColor3 = C.OFF
+		Input.Parent = InputWrap
+		Input.BackgroundTransparency = 1
 		Input.BorderSizePixel = 0
-		Input.Position = UDim2.new(0.52, 4, 0.5, -9)
-		Input.Size = UDim2.new(0.48, -14, 0, 18)
-		Input.Font = Enum.Font.GothamSemibold
+		Input.Position = UDim2.new(0, 6, 0, 0)
+		Input.Size = UDim2.new(1, -12, 1, 0)
+		Input.Font = Enum.Font.Gotham
 		Input.PlaceholderText = placeholder or ""
 		Input.PlaceholderColor3 = C.DIM
 		Input.Text = ""
 		Input.TextColor3 = C.TEXT
 		Input.TextSize = 10
+		Input.TextXAlignment = Enum.TextXAlignment.Left
 		Input.ClearTextOnFocus = false
-		Corner(Input, 4)
-		local inpStroke = MkStroke(Input)
 
 		Input.Focused:Connect(function()
-			Tw(Input, {BackgroundColor3 = C.ACTIVE})
-			inpStroke.Color = C.ACCENT
+			Tw(InputWrap, {BackgroundColor3 = C.ACTIVE})
+			wrapStroke.Color = C.ACCENT
 		end)
 		Input.FocusLost:Connect(function()
-			Tw(Input, {BackgroundColor3 = C.OFF})
-			inpStroke.Color = C.BORDER
+			Tw(InputWrap, {BackgroundColor3 = C.SLIDERBG})
+			wrapStroke.Color = C.BORDER
 			local ok, e = pcall(cb, tostring(Input.Text))
 			if not ok then Err("TextBox '" .. tostring(name) .. "': " .. tostring(e)) end
 		end)
+
+		f.MouseEnter:Connect(function() Tw(f, {BackgroundColor3 = C.HOVER}) end)
+		f.MouseLeave:Connect(function() Tw(f, {BackgroundColor3 = C.ELEM}) end)
 	end
 
-	function SecObj:addDropdown(name, list, callback, iconName)
+	function SecObj:addDropdown(name, list, callback)
 		local cb = callback or function() end
 		local Selected = nil
 		local Open = false
@@ -807,10 +798,6 @@ local function BuildSection(sectionname, PageScroll)
 		Corner(Hdr, 5)
 
 		local leftOff = 10
-		if iconName then
-			local ic = MkIcon(Hdr, iconName, UDim2.new(0, 12, 0, 12), 7, 0, C.DIM, 0, 0.5)
-			if ic then leftOff = 24 end
-		end
 
 		local DN = Instance.new("TextLabel")
 		DN.Parent = Hdr
@@ -1247,21 +1234,23 @@ function Library:CreateWindow(windowname, windowinfo)
 	TitleFix.Size = UDim2.new(1, 0, 0.5, 0)
 	TitleFix.ZIndex = 2
 
-	local TitleDot = Instance.new("Frame")
+	local TitleDot = Instance.new("ImageLabel")
 	TitleDot.Parent = TitleBar
-	TitleDot.BackgroundColor3 = C.ACCENT
-	TitleDot.BorderSizePixel = 0
+	TitleDot.BackgroundTransparency = 1
+	TitleDot.Image = "rbxassetid://112537363055720"
+	TitleDot.ImageColor3 = Color3.fromRGB(255, 255, 255)
+	TitleDot.ImageTransparency = 0
+	TitleDot.ScaleType = Enum.ScaleType.Fit
 	TitleDot.AnchorPoint = Vector2.new(0, 0.5)
-	TitleDot.Position = UDim2.new(0, 10, 0.5, 0)
-	TitleDot.Size = UDim2.new(0, 6, 0, 6)
+	TitleDot.Position = UDim2.new(0, 8, 0.5, 0)
+	TitleDot.Size = UDim2.new(0, 16, 0, 16)
 	TitleDot.ZIndex = 3
-	Corner(TitleDot, 3)
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.Parent = TitleBar
 	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.Position = UDim2.new(0, 22, 0, 0)
-	TitleLabel.Size = UDim2.new(0.55, 0, 1, 0)
+	TitleLabel.Position = UDim2.new(0, 30, 0, 0)
+	TitleLabel.Size = UDim2.new(0.55, -30, 1, 0)
 	TitleLabel.Font = Enum.Font.GothamBold
 	TitleLabel.Text = windowname or "ecohub"
 	TitleLabel.TextColor3 = C.TEXT
@@ -1298,6 +1287,16 @@ function Library:CreateWindow(windowname, windowinfo)
 	Sidebar.Size = UDim2.new(0, 120, 1, 0)
 	Sidebar.ZIndex = 2
 	Corner(Sidebar, 8)
+
+	local SidebarTexture = Instance.new("ImageLabel")
+	SidebarTexture.Parent = Sidebar
+	SidebarTexture.BackgroundTransparency = 1
+	SidebarTexture.Image = "rbxassetid://112537363055720"
+	SidebarTexture.ImageTransparency = 0.55
+	SidebarTexture.ScaleType = Enum.ScaleType.Tile
+	SidebarTexture.TileSize = UDim2.new(0, 64, 0, 64)
+	SidebarTexture.Size = UDim2.new(1, 0, 1, 0)
+	SidebarTexture.ZIndex = 2
 
 	local SidebarFix = Instance.new("Frame")
 	SidebarFix.Parent = Sidebar
