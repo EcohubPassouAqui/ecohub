@@ -1234,23 +1234,21 @@ function Library:CreateWindow(windowname, windowinfo)
 	TitleFix.Size = UDim2.new(1, 0, 0.5, 0)
 	TitleFix.ZIndex = 2
 
-	local TitleDot = Instance.new("ImageLabel")
+	local TitleDot = Instance.new("Frame")
 	TitleDot.Parent = TitleBar
-	TitleDot.BackgroundTransparency = 1
-	TitleDot.Image = "rbxassetid://112537363055720"
-	TitleDot.ImageColor3 = Color3.fromRGB(255, 255, 255)
-	TitleDot.ImageTransparency = 0
-	TitleDot.ScaleType = Enum.ScaleType.Fit
+	TitleDot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TitleDot.BorderSizePixel = 0
 	TitleDot.AnchorPoint = Vector2.new(0, 0.5)
-	TitleDot.Position = UDim2.new(0, 8, 0.5, 0)
-	TitleDot.Size = UDim2.new(0, 16, 0, 16)
+	TitleDot.Position = UDim2.new(0, 10, 0.5, 0)
+	TitleDot.Size = UDim2.new(0, 6, 0, 6)
 	TitleDot.ZIndex = 3
+	Corner(TitleDot, 3)
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.Parent = TitleBar
 	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.Position = UDim2.new(0, 30, 0, 0)
-	TitleLabel.Size = UDim2.new(0.55, -30, 1, 0)
+	TitleLabel.Position = UDim2.new(0, 22, 0, 0)
+	TitleLabel.Size = UDim2.new(0.55, -22, 1, 0)
 	TitleLabel.Font = Enum.Font.GothamBold
 	TitleLabel.Text = windowname or "ecohub"
 	TitleLabel.TextColor3 = C.TEXT
