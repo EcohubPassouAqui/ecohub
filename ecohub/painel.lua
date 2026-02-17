@@ -248,16 +248,15 @@ local Icons = {
 Library.Icons = Icons
 
 local CHECK_TEXTURE    = "rbxassetid://10709790644"
-local BG_TEXTURE       = "rbxassetid://112537363055720"
 
 local C = {
-	BG      = Color3.fromRGB(10,  10,  14),
+	BG      = Color3.fromRGB(8,   8,   10),
 	SIDEBAR = Color3.fromRGB(7,   7,   10),
 	ELEM    = Color3.fromRGB(18,  16,  26),
 	SECT    = Color3.fromRGB(13,  11,  20),
 	HOVER   = Color3.fromRGB(28,  24,  40),
 	ACTIVE  = Color3.fromRGB(22,  18,  34),
-	ACCENT  = Color3.fromRGB(140, 80,  255),
+	ACCENT  = Color3.fromRGB(255, 255, 255),
 	TEXT    = Color3.fromRGB(255, 255, 255),
 	DIM     = Color3.fromRGB(130, 120, 155),
 	OFF     = Color3.fromRGB(25,  22,  36),
@@ -265,8 +264,8 @@ local C = {
 	BORDER  = Color3.fromRGB(38,  30,  58),
 	SEP     = Color3.fromRGB(40,  32,  62),
 	KEYBG   = Color3.fromRGB(20,  18,  30),
-	SLIDERBG = Color3.fromRGB(20, 17,  32),
-	SLIDERFILL = Color3.fromRGB(140, 80, 255),
+	SLIDERBG   = Color3.fromRGB(20, 17, 32),
+	SLIDERFILL = Color3.fromRGB(255, 255, 255),
 }
 
 local TI = {
@@ -681,7 +680,7 @@ local function BuildSection(sectionname, PageScroll)
 		GlowFrame.BorderSizePixel = 0
 		GlowFrame.ZIndex = 3
 		Corner(GlowFrame, 6)
-		MkStroke(GlowFrame, Color3.fromRGB(180, 130, 255), 1)
+		MkStroke(GlowFrame, Color3.fromRGB(220, 220, 220), 1)
 
 		local Track = Instance.new("TextButton")
 		Track.Parent = f
@@ -1222,7 +1221,7 @@ function Library:CreateWindow(windowname, windowinfo)
 	Main.Name = "Main"
 	Main.Parent = ScreenGui
 	Main.BackgroundColor3 = C.BG
-	Main.BackgroundTransparency = 0.18
+	Main.BackgroundTransparency = 0
 	Main.BorderSizePixel = 0
 	Main.Position = UDim2.new(0.25, 0, 0.25, 0)
 	Main.Size = UDim2.new(0, 520, 0, 340)
@@ -1230,22 +1229,10 @@ function Library:CreateWindow(windowname, windowinfo)
 	Corner(Main, 8)
 	MkStroke(Main)
 
-	local BgTexture = Instance.new("ImageLabel")
-	BgTexture.Name = "BgTexture"
-	BgTexture.Parent = Main
-	BgTexture.BackgroundTransparency = 1
-	BgTexture.Image = BG_TEXTURE
-	BgTexture.ImageTransparency = 0.7
-	BgTexture.ScaleType = Enum.ScaleType.Tile
-	BgTexture.TileSize = UDim2.new(0, 64, 0, 64)
-	BgTexture.Size = UDim2.new(1, 0, 1, 0)
-	BgTexture.Position = UDim2.new(0, 0, 0, 0)
-	BgTexture.ZIndex = 0
-
 	local TitleBar = Instance.new("Frame")
 	TitleBar.Parent = Main
 	TitleBar.BackgroundColor3 = C.SIDEBAR
-	TitleBar.BackgroundTransparency = 0.1
+	TitleBar.BackgroundTransparency = 0
 	TitleBar.BorderSizePixel = 0
 	TitleBar.Size = UDim2.new(1, 0, 0, 32)
 	TitleBar.ZIndex = 2
@@ -1254,7 +1241,7 @@ function Library:CreateWindow(windowname, windowinfo)
 	local TitleFix = Instance.new("Frame")
 	TitleFix.Parent = TitleBar
 	TitleFix.BackgroundColor3 = C.SIDEBAR
-	TitleFix.BackgroundTransparency = 0.1
+	TitleFix.BackgroundTransparency = 0
 	TitleFix.BorderSizePixel = 0
 	TitleFix.Position = UDim2.new(0, 0, 0.5, 0)
 	TitleFix.Size = UDim2.new(1, 0, 0.5, 0)
@@ -1306,7 +1293,7 @@ function Library:CreateWindow(windowname, windowinfo)
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Parent = Body
 	Sidebar.BackgroundColor3 = C.SIDEBAR
-	Sidebar.BackgroundTransparency = 0.15
+	Sidebar.BackgroundTransparency = 0
 	Sidebar.BorderSizePixel = 0
 	Sidebar.Size = UDim2.new(0, 120, 1, 0)
 	Sidebar.ZIndex = 2
@@ -1315,7 +1302,7 @@ function Library:CreateWindow(windowname, windowinfo)
 	local SidebarFix = Instance.new("Frame")
 	SidebarFix.Parent = Sidebar
 	SidebarFix.BackgroundColor3 = C.SIDEBAR
-	SidebarFix.BackgroundTransparency = 0.15
+	SidebarFix.BackgroundTransparency = 0
 	SidebarFix.BorderSizePixel = 0
 	SidebarFix.Position = UDim2.new(1, -8, 0, 0)
 	SidebarFix.Size = UDim2.new(0, 8, 1, 0)
