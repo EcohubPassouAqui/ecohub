@@ -2480,3 +2480,27 @@ function Library:CreateWindow(windowname, windowinfo)
 end
 
 return Library
+
+--[[
+USAGE EXAMPLE:
+
+local Library = loadstring(...)()
+local win = Library:CreateWindow("MyScript", "v2.0")
+
+-- Tab without icon
+local page1 = win:addPage("Combat")
+
+-- Tab with Lucide icon (pass icon name as second argument)
+local page2 = win:addPage("Aimbot", "crosshair")
+local page3 = win:addPage("Visuals", "eye")
+local page4 = win:addPage("Settings", "settings")
+local page5 = win:addPage("Player", "user")
+
+-- Available icon names: any key from Library.Icons table
+-- e.g. "home", "star", "shield", "flame", "sword", "rocket", etc.
+
+local sec = page2:addSection("Aim Settings")
+sec:addToggle("Enable Aimbot", false, function(v) end, Enum.KeyCode.Z)
+sec:addSlider("FOV", 1, 500, 120, function(v) end)
+sec:addDropdown("Team Check", {"Enemies", "All", "None"}, function(v) end)
+]]
