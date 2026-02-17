@@ -129,6 +129,21 @@ function Library:CreateWindow(windowname, windowinfo)
     SidebarFix.Position = UDim2.new(1, -8, 0, 0)
     SidebarFix.Size = UDim2.new(0, 8, 1, 0)
 
+    local SidebarTopLine = Instance.new("Frame")
+    SidebarTopLine.Parent = Sidebar
+    SidebarTopLine.BackgroundColor3 = COLORS.ACCENT
+    SidebarTopLine.BorderSizePixel = 0
+    SidebarTopLine.Position = UDim2.new(0, 0, 0, 0)
+    SidebarTopLine.Size = UDim2.new(1, 0, 0, 1)
+
+    local SidebarBottomLine = Instance.new("Frame")
+    SidebarBottomLine.Parent = Sidebar
+    SidebarBottomLine.BackgroundColor3 = COLORS.ACCENT
+    SidebarBottomLine.BackgroundTransparency = 0.8
+    SidebarBottomLine.BorderSizePixel = 0
+    SidebarBottomLine.Position = UDim2.new(0, 0, 1, -1)
+    SidebarBottomLine.Size = UDim2.new(1, 0, 0, 1)
+
     local TabScroll = Instance.new("ScrollingFrame")
     TabScroll.Name = "TabScroll"
     TabScroll.Parent = Sidebar
@@ -211,6 +226,22 @@ function Library:CreateWindow(windowname, windowinfo)
         Tab.TextSize = 11
         MakeCorner(Tab, 5)
 
+        local TopLine = Instance.new("Frame")
+        TopLine.Parent = Tab
+        TopLine.BackgroundColor3 = COLORS.ACCENT
+        TopLine.BorderSizePixel = 0
+        TopLine.Position = UDim2.new(0, 4, 0, 0)
+        TopLine.Size = UDim2.new(1, -8, 0, 1)
+        TopLine.Visible = false
+
+        local BottomLine = Instance.new("Frame")
+        BottomLine.Parent = Tab
+        BottomLine.BackgroundColor3 = COLORS.ACCENT
+        BottomLine.BorderSizePixel = 0
+        BottomLine.Position = UDim2.new(0, 4, 1, -1)
+        BottomLine.Size = UDim2.new(1, -8, 0, 1)
+        BottomLine.Visible = false
+
         local Indicator = Instance.new("Frame")
         Indicator.Parent = Tab
         Indicator.BackgroundColor3 = COLORS.ACCENT
@@ -243,7 +274,7 @@ function Library:CreateWindow(windowname, windowinfo)
         PagePad.PaddingBottom = UDim.new(0, 6)
         PagePad.PaddingRight = UDim.new(0, 2)
 
-        table.insert(Pages, {Tab=Tab, Page=PageScroll, Indicator=Indicator})
+        table.insert(Pages, {Tab=Tab, Page=PageScroll, Indicator=Indicator, TopLine=TopLine, BottomLine=BottomLine})
 
         local function SelectTab()
             for _, p in pairs(Pages) do
@@ -251,11 +282,15 @@ function Library:CreateWindow(windowname, windowinfo)
                 p.Tab.TextColor3 = COLORS.TEXT_DIM
                 Tween(p.Tab, {BackgroundColor3 = COLORS.ELEMENT})
                 p.Indicator.Visible = false
+                p.TopLine.Visible = false
+                p.BottomLine.Visible = false
             end
             PageScroll.Visible = true
             Tab.TextColor3 = COLORS.TEXT
             Tween(Tab, {BackgroundColor3 = COLORS.ACTIVE})
             Indicator.Visible = true
+            TopLine.Visible = true
+            BottomLine.Visible = true
             PageScroll.CanvasPosition = Vector2.new(0, 0)
             ActiveTab = Tab
         end
@@ -323,35 +358,6 @@ function Library:CreateWindow(windowname, windowinfo)
                 f.Size = UDim2.new(1, 0, 0, height)
                 MakeCorner(f, 5)
                 return f
-            end
-
-            function SecObj:addLabel(labelname, labelinfo)
-                local h = labelinfo and 36 or 26
-                local f = makeBase(h)
-
-                local t = Instance.new("TextLabel")
-                t.Parent = f
-                t.BackgroundTransparency = 1
-                t.Position = UDim2.new(0, 10, 0, 0)
-                t.Size = UDim2.new(1, -10, 0, 26)
-                t.Font = Enum.Font.GothamSemibold
-                t.Text = labelname or ""
-                t.TextColor3 = COLORS.TEXT
-                t.TextSize = 11
-                t.TextXAlignment = Enum.TextXAlignment.Left
-
-                if labelinfo then
-                    local s = Instance.new("TextLabel")
-                    s.Parent = f
-                    s.BackgroundTransparency = 1
-                    s.Position = UDim2.new(0, 10, 0, 22)
-                    s.Size = UDim2.new(1, -10, 0, 14)
-                    s.Font = Enum.Font.Gotham
-                    s.Text = labelinfo
-                    s.TextColor3 = COLORS.TEXT_DIM
-                    s.TextSize = 9
-                    s.TextXAlignment = Enum.TextXAlignment.Left
-                end
             end
 
             function SecObj:addButton(buttonname, callback)
