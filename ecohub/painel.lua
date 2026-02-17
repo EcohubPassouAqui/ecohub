@@ -1234,25 +1234,14 @@ function Library:CreateWindow(windowname, windowinfo)
 	TitleFix.Size = UDim2.new(1, 0, 0.5, 0)
 	TitleFix.ZIndex = 2
 
-	local TitleDotGlow = Instance.new("Frame")
-	TitleDotGlow.Parent = TitleBar
-	TitleDotGlow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	TitleDotGlow.BackgroundTransparency = 0.85
-	TitleDotGlow.BorderSizePixel = 0
-	TitleDotGlow.AnchorPoint = Vector2.new(0, 0.5)
-	TitleDotGlow.Position = UDim2.new(0, 7, 0.5, 0)
-	TitleDotGlow.Size = UDim2.new(0, 16, 0, 16)
-	TitleDotGlow.ZIndex = 3
-	Corner(TitleDotGlow, 8)
-
 	local TitleDot = Instance.new("ImageLabel")
 	TitleDot.Parent = TitleBar
 	TitleDot.BackgroundTransparency = 1
-	TitleDot.Image = Icons["lucide-circle"]
+	TitleDot.Image = "rbxassetid://112537363055720"
 	TitleDot.ImageColor3 = Color3.fromRGB(255, 255, 255)
 	TitleDot.AnchorPoint = Vector2.new(0, 0.5)
-	TitleDot.Position = UDim2.new(0, 10, 0.5, 0)
-	TitleDot.Size = UDim2.new(0, 10, 0, 10)
+	TitleDot.Position = UDim2.new(0, 8, 0.5, 0)
+	TitleDot.Size = UDim2.new(0, 18, 0, 18)
 	TitleDot.ScaleType = Enum.ScaleType.Fit
 	TitleDot.ZIndex = 4
 
