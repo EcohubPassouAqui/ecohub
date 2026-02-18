@@ -4,6 +4,7 @@ local TextService      = game:GetService("TextService")
 
 local Library = {}
 Library.__index = Library
+Library.Options = {}
 
 local function Err(msg)
 	print("[ecohub ERROR] " .. tostring(msg))
