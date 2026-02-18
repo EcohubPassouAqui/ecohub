@@ -1394,6 +1394,7 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	TitleLabel.TextColor3 = C.TEXT
 	TitleLabel.TextSize = 12
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.ZIndex = 3
 
 	local VerLabel = Instance.new("TextLabel")
 	VerLabel.Parent = TitleBar
