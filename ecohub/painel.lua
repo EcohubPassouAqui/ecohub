@@ -1390,19 +1390,8 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	TitleDot.Image = BRAND_IMAGE
 	TitleDot.Size = UDim2.new(0, 26, 0, 26)
 	TitleDot.AnchorPoint = Vector2.new(0, 0.5)
-	TitleDot.Position = UDim2.new(0, 5, 0.5, 0)
+	TitleDot.Position = UDim2.new(0, 8, 0.5, 0)
 	TitleDot.ScaleType = Enum.ScaleType.Fit
-
-	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Parent = TitleBar
-	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.Position = UDim2.new(0, 36, 0, 0)
-	TitleLabel.Size = UDim2.new(0.55, 0, 1, 0)
-	TitleLabel.Font = Enum.Font.GothamBold
-	TitleLabel.Text = windowname or "ecohub"
-	TitleLabel.TextColor3 = C.TEXT
-	TitleLabel.TextSize = 12
-	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
 	local VerLabel = Instance.new("TextLabel")
 	VerLabel.Parent = TitleBar
