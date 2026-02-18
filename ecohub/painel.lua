@@ -256,7 +256,7 @@ local C = {
 	SECT    = Color3.fromRGB(13,  11,  20),
 	HOVER   = Color3.fromRGB(28,  24,  40),
 	ACTIVE  = Color3.fromRGB(22,  18,  34),
-	ACCENT  = Color3.fromRGB(140, 80,  255),
+	ACCENT  = Color3.fromRGB(220, 220, 220),
 	TEXT    = Color3.fromRGB(255, 255, 255),
 	DIM     = Color3.fromRGB(130, 120, 155),
 	OFF     = Color3.fromRGB(25,  22,  36),
@@ -1213,15 +1213,15 @@ function Library:CreateWindow(windowname, windowinfo)
 	TitleDot.Parent = TitleBar
 	TitleDot.BackgroundTransparency = 1
 	TitleDot.Image = "rbxassetid://112537363055720"
-	TitleDot.Size = UDim2.new(0, 8, 0, 8)
+	TitleDot.Size = UDim2.new(0, 18, 0, 18)
 	TitleDot.AnchorPoint = Vector2.new(0, 0.5)
-	TitleDot.Position = UDim2.new(0, 10, 0.5, 0)
+	TitleDot.Position = UDim2.new(0, 8, 0.5, 0)
 	TitleDot.ScaleType = Enum.ScaleType.Fit
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.Parent = TitleBar
 	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.Position = UDim2.new(0, 24, 0, 0)
+	TitleLabel.Position = UDim2.new(0, 32, 0, 0)
 	TitleLabel.Size = UDim2.new(0.55, 0, 1, 0)
 	TitleLabel.Font = Enum.Font.GothamBold
 	TitleLabel.Text = windowname or "ecohub"
@@ -1329,7 +1329,7 @@ function Library:CreateWindow(windowname, windowinfo)
 		end
 	end
 
-	local ToggleKey = Enum.KeyCode.LeftAlt
+	local ToggleKey = Enum.KeyCode.RightAlt
 	UserInputService.InputBegan:Connect(function(inp, gp)
 		if not gp and inp.KeyCode == ToggleKey then
 			if not Main.Visible then
