@@ -789,6 +789,15 @@ local function BuildSection(sectionname, PageScroll)
 				print("[ecohub ERROR] TextBox '" .. tostring(name) .. "': " .. tostring(e))
 			end
 		end)
+
+		local ctrl = {}
+		function ctrl:Get()
+			return tostring(Input.Text)
+		end
+		function ctrl:Set(v)
+			Input.Text = tostring(v or "")
+		end
+		return ctrl
 	end
 
 	function SecObj:addDropdown(name, list, callback, iconName)
@@ -1440,7 +1449,7 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	SidebarBrandTop.Parent = Sidebar
 	SidebarBrandTop.BackgroundTransparency = 1
 	SidebarBrandTop.Image = BRAND_IMAGE
-	SidebarBrandTop.Size = UDim2.new(0, 54, 0, 54)
+	SidebarBrandTop.Size = UDim2.new(0, 72, 0, 72)
 	SidebarBrandTop.AnchorPoint = Vector2.new(0.5, 0)
 	SidebarBrandTop.Position = UDim2.new(0.5, 0, 0, 4)
 	SidebarBrandTop.ScaleType = Enum.ScaleType.Fit
@@ -1450,15 +1459,15 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	SidebarSepTop.Parent = Sidebar
 	SidebarSepTop.BackgroundColor3 = C.SEP
 	SidebarSepTop.BorderSizePixel = 0
-	SidebarSepTop.Position = UDim2.new(0, 6, 0, 62)
+	SidebarSepTop.Position = UDim2.new(0, 6, 0, 80)
 	SidebarSepTop.Size = UDim2.new(1, -12, 0, 1)
 
 	local TabScroll = Instance.new("ScrollingFrame")
 	TabScroll.Parent = Sidebar
 	TabScroll.BackgroundTransparency = 1
 	TabScroll.BorderSizePixel = 0
-	TabScroll.Position = UDim2.new(0, 6, 0, 67)
-	TabScroll.Size = UDim2.new(1, -12, 1, -105)
+	TabScroll.Position = UDim2.new(0, 6, 0, 85)
+	TabScroll.Size = UDim2.new(1, -12, 1, -125)
 	TabScroll.ScrollBarThickness = 2
 	TabScroll.ScrollBarImageColor3 = C.ACCENT
 	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
