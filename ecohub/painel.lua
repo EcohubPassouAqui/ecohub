@@ -248,6 +248,7 @@ local Icons = {
 Library.Icons = Icons
 
 local CHECK_TEXTURE = "rbxassetid://10709790644"
+local BRAND_IMAGE   = "rbxassetid://112537363055720"
 
 local C = {
 	BG      = Color3.fromRGB(15,  15,  15),
@@ -279,7 +280,9 @@ local function Tw(obj, props, ti)
 	local ok, e = pcall(function()
 		TweenService:Create(obj, ti or TI.Fast, props):Play()
 	end)
-	if not ok then Err("Tween: " .. tostring(e)) end
+	if not ok then
+		print("[ecohub ERROR] Tween: " .. tostring(e))
+	end
 end
 
 local function Corner(p, r)
@@ -344,7 +347,9 @@ local function DestroyOld()
 		local g = game:GetService("CoreGui"):FindFirstChild("ecohub_gui")
 		if g then g:Destroy() end
 	end)
-	if not ok then Err("DestroyOld: " .. tostring(e)) end
+	if not ok then
+		print("[ecohub ERROR] DestroyOld: " .. tostring(e))
+	end
 end
 DestroyOld()
 task.wait(0.05)
@@ -460,7 +465,9 @@ local function BuildSection(sectionname, PageScroll)
 			task.delay(0.14, function()
 				Tw(f, {BackgroundColor3 = C.ELEM})
 				local ok, e = pcall(cb)
-				if not ok then Err("Button '" .. tostring(name) .. "': " .. tostring(e)) end
+				if not ok then
+					print("[ecohub ERROR] Button '" .. tostring(name) .. "': " .. tostring(e))
+				end
 			end)
 		end)
 	end
@@ -561,7 +568,9 @@ local function BuildSection(sectionname, PageScroll)
 			On = not On
 			UpdateVisuals()
 			local ok, e = pcall(cb, On)
-			if not ok then Err("Toggle '" .. tostring(togglename) .. "': " .. tostring(e)) end
+			if not ok then
+				print("[ecohub ERROR] Toggle '" .. tostring(togglename) .. "': " .. tostring(e))
+			end
 		end)
 
 		if withBind then
@@ -586,7 +595,9 @@ local function BuildSection(sectionname, PageScroll)
 					On = not On
 					UpdateVisuals()
 					local ok, e = pcall(cb, On)
-					if not ok then Err("Toggle keybind '" .. tostring(togglename) .. "': " .. tostring(e)) end
+					if not ok then
+						print("[ecohub ERROR] Toggle keybind '" .. tostring(togglename) .. "': " .. tostring(e))
+					end
 				end
 			end)
 		end
@@ -598,7 +609,9 @@ local function BuildSection(sectionname, PageScroll)
 			On = v == true
 			UpdateVisuals()
 			local ok, e = pcall(cb, On)
-			if not ok then Err("Toggle:Set: " .. tostring(e)) end
+			if not ok then
+				print("[ecohub ERROR] Toggle:Set: " .. tostring(e))
+			end
 		end
 		function ctrl:Get() return On end
 		if withBind then
@@ -697,7 +710,9 @@ local function BuildSection(sectionname, PageScroll)
 			Knob.Position = UDim2.new(p, 0, 0.5, 0)
 			VL.Text = tostring(cur)
 			local ok, e = pcall(cb, cur)
-			if not ok then Err("Slider '" .. tostring(name) .. "': " .. tostring(e)) end
+			if not ok then
+				print("[ecohub ERROR] Slider '" .. tostring(name) .. "': " .. tostring(e))
+			end
 		end
 		TrackHit.MouseButton1Down:Connect(function()
 			Drag = true
@@ -770,7 +785,9 @@ local function BuildSection(sectionname, PageScroll)
 			Tw(Input, {BackgroundColor3 = C.OFF})
 			inpStroke.Color = C.BORDER
 			local ok, e = pcall(cb, tostring(Input.Text))
-			if not ok then Err("TextBox '" .. tostring(name) .. "': " .. tostring(e)) end
+			if not ok then
+				print("[ecohub ERROR] TextBox '" .. tostring(name) .. "': " .. tostring(e))
+			end
 		end)
 	end
 
@@ -900,40 +917,53 @@ local function BuildSection(sectionname, PageScroll)
 		HB.MouseEnter:Connect(function() Tw(Hdr, {BackgroundColor3 = C.HOVER}) end)
 		HB.MouseLeave:Connect(function() Tw(Hdr, {BackgroundColor3 = C.ELEM}) end)
 
-		for _, item in ipairs(list) do
-			local Opt = Instance.new("TextButton")
-			Opt.Parent = DS2
-			Opt.BackgroundColor3 = C.ELEM
-			Opt.BorderSizePixel = 0
-			Opt.Size = UDim2.new(1, 0, 0, 22)
-			Opt.AutoButtonColor = false
-			Opt.Font = Enum.Font.GothamSemibold
-			Opt.Text = tostring(item)
-			Opt.TextColor3 = C.TEXT
-			Opt.TextSize = 10
-			Opt.ZIndex = 21
-			Corner(Opt, 4)
-			Opt.MouseEnter:Connect(function() Tw(Opt, {BackgroundColor3 = C.HOVER}) end)
-			Opt.MouseLeave:Connect(function()
-				if Selected ~= item then Tw(Opt, {BackgroundColor3 = C.ELEM}) end
-			end)
-			Opt.MouseButton1Click:Connect(function()
-				Selected = item
-				DS.Text = tostring(item)
-				DS.TextColor3 = C.ACCENT
-				CloseDD()
-				local ok, e = pcall(cb, item)
-				if not ok then Err("Dropdown '" .. tostring(name) .. "': " .. tostring(e)) end
-			end)
+		local function BuildItems(itemList)
+			for _, child in ipairs(DS2:GetChildren()) do
+				if child:IsA("TextButton") then child:Destroy() end
+			end
+			tH = math.min(#itemList * 26 + 8, 130)
+			for _, item in ipairs(itemList) do
+				local Opt = Instance.new("TextButton")
+				Opt.Parent = DS2
+				Opt.BackgroundColor3 = C.ELEM
+				Opt.BorderSizePixel = 0
+				Opt.Size = UDim2.new(1, 0, 0, 22)
+				Opt.AutoButtonColor = false
+				Opt.Font = Enum.Font.GothamSemibold
+				Opt.Text = tostring(item)
+				Opt.TextColor3 = C.TEXT
+				Opt.TextSize = 10
+				Opt.ZIndex = 21
+				Corner(Opt, 4)
+				Opt.MouseEnter:Connect(function() Tw(Opt, {BackgroundColor3 = C.HOVER}) end)
+				Opt.MouseLeave:Connect(function()
+					if Selected ~= item then Tw(Opt, {BackgroundColor3 = C.ELEM}) end
+				end)
+				Opt.MouseButton1Click:Connect(function()
+					Selected = item
+					DS.Text = tostring(item)
+					DS.TextColor3 = C.ACCENT
+					CloseDD()
+					local ok, e = pcall(cb, item)
+					if not ok then
+						print("[ecohub ERROR] Dropdown '" .. tostring(name) .. "': " .. tostring(e))
+					end
+				end)
+			end
 		end
+
+		BuildItems(list)
 
 		local ctrl = {}
 		function ctrl:Set(v)
 			Selected = v
-			DS.Text = tostring(v)
-			DS.TextColor3 = C.ACCENT
+			DS.Text = v and tostring(v) or "none"
+			DS.TextColor3 = v and C.ACCENT or C.DIM
 		end
 		function ctrl:Get() return Selected end
+		function ctrl:SetList(newList)
+			BuildItems(newList)
+		end
 		return ctrl
 	end
 
@@ -989,7 +1019,8 @@ local function BuildSection(sectionname, PageScroll)
 			if Listening then
 				Listening = false
 				if inp.KeyCode == Enum.KeyCode.Escape then
-					CK = nil KbBtn.Text = "[NONE]"
+					CK = nil
+					KbBtn.Text = "[NONE]"
 				else
 					CK = inp.KeyCode
 					KbBtn.Text = "[" .. GetKeyName(inp.KeyCode) .. "]"
@@ -1001,7 +1032,9 @@ local function BuildSection(sectionname, PageScroll)
 			end
 			if not gp and CK and inp.KeyCode == CK then
 				local ok, e = pcall(cb, CK)
-				if not ok then Err("Keybind '" .. tostring(name) .. "': " .. tostring(e)) end
+				if not ok then
+					print("[ecohub ERROR] Keybind '" .. tostring(name) .. "': " .. tostring(e))
+				end
 			end
 		end)
 		f.MouseEnter:Connect(function() Tw(f, {BackgroundColor3 = C.HOVER}) end)
@@ -1091,7 +1124,9 @@ local function BuildSection(sectionname, PageScroll)
 			Prev.BackgroundColor3 = CurColor
 			HexL.Text = ToHex(CurColor)
 			local ok, e = pcall(cb, CurColor)
-			if not ok then Err("ColorPicker '" .. tostring(name) .. "': " .. tostring(e)) end
+			if not ok then
+				print("[ecohub ERROR] ColorPicker '" .. tostring(name) .. "': " .. tostring(e))
+			end
 		end
 
 		local chs = {
@@ -1229,7 +1264,7 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	local HttpService = game:GetService("HttpService")
 	folder = folder or "ecohub"
 
-	local ConfigFolder        = folder
+	local ConfigFolder         = folder
 	local ConfigSettingsFolder = folder .. "/configs"
 
 	local function EnsureFolders()
@@ -1352,16 +1387,16 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	local TitleDot = Instance.new("ImageLabel")
 	TitleDot.Parent = TitleBar
 	TitleDot.BackgroundTransparency = 1
-	TitleDot.Image = "rbxassetid://112537363055720"
-	TitleDot.Size = UDim2.new(0, 18, 0, 18)
+	TitleDot.Image = BRAND_IMAGE
+	TitleDot.Size = UDim2.new(0, 26, 0, 26)
 	TitleDot.AnchorPoint = Vector2.new(0, 0.5)
-	TitleDot.Position = UDim2.new(0, 8, 0.5, 0)
+	TitleDot.Position = UDim2.new(0, 5, 0.5, 0)
 	TitleDot.ScaleType = Enum.ScaleType.Fit
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.Parent = TitleBar
 	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.Position = UDim2.new(0, 32, 0, 0)
+	TitleLabel.Position = UDim2.new(0, 36, 0, 0)
 	TitleLabel.Size = UDim2.new(0.55, 0, 1, 0)
 	TitleLabel.Font = Enum.Font.GothamBold
 	TitleLabel.Text = windowname or "ecohub"
@@ -1407,7 +1442,7 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	TabScroll.BackgroundTransparency = 1
 	TabScroll.BorderSizePixel = 0
 	TabScroll.Position = UDim2.new(0, 6, 0, 6)
-	TabScroll.Size = UDim2.new(1, -12, 1, -42)
+	TabScroll.Size = UDim2.new(1, -12, 1, -100)
 	TabScroll.ScrollBarThickness = 2
 	TabScroll.ScrollBarImageColor3 = C.ACCENT
 	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -1418,13 +1453,21 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	TabLayout.Padding = UDim.new(0, 3)
 
+	local SidebarSep = Instance.new("Frame")
+	SidebarSep.Parent = Sidebar
+	SidebarSep.BackgroundColor3 = C.SEP
+	SidebarSep.BorderSizePixel = 0
+	SidebarSep.AnchorPoint = Vector2.new(0, 1)
+	SidebarSep.Position = UDim2.new(0, 6, 1, -70)
+	SidebarSep.Size = UDim2.new(1, -12, 0, 1)
+
 	local SettingsTabBtn = Instance.new("TextButton")
 	SettingsTabBtn.Parent = Sidebar
 	SettingsTabBtn.BackgroundColor3 = C.ELEM
 	SettingsTabBtn.BackgroundTransparency = 1
 	SettingsTabBtn.BorderSizePixel = 0
 	SettingsTabBtn.AnchorPoint = Vector2.new(0, 1)
-	SettingsTabBtn.Position = UDim2.new(0, 6, 1, -6)
+	SettingsTabBtn.Position = UDim2.new(0, 6, 1, -38)
 	SettingsTabBtn.Size = UDim2.new(1, -12, 0, 28)
 	SettingsTabBtn.AutoButtonColor = false
 	SettingsTabBtn.Text = ""
@@ -1460,6 +1503,16 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	SettingsUnderline.Size = UDim2.new(0, 0, 0, 1)
 	SettingsUnderline.Visible = false
 	Corner(SettingsUnderline, 1)
+
+	local SidebarBrandImg = Instance.new("ImageLabel")
+	SidebarBrandImg.Parent = Sidebar
+	SidebarBrandImg.BackgroundTransparency = 1
+	SidebarBrandImg.Image = BRAND_IMAGE
+	SidebarBrandImg.Size = UDim2.new(0, 54, 0, 54)
+	SidebarBrandImg.AnchorPoint = Vector2.new(0.5, 1)
+	SidebarBrandImg.Position = UDim2.new(0.5, 0, 1, -72)
+	SidebarBrandImg.ScaleType = Enum.ScaleType.Fit
+	SidebarBrandImg.ImageTransparency = 0.15
 
 	local ContentArea = Instance.new("Frame")
 	ContentArea.Parent = Body
@@ -1497,15 +1550,15 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 
 	local cfgSection = BuildSection("Configuracoes", SettingsScroll)
 
-	local cfgNameCtrl  = cfgSection:addTextBox("Nome do config", "minha_config", nil)
-	local cfgListCtrl  = cfgSection:addDropdown("Configs salvos", GetConfigList(), nil)
+	local cfgNameCtrl = cfgSection:addTextBox("Nome do config", "minha_config", nil)
+	local cfgListCtrl = cfgSection:addDropdown("Configs salvos", GetConfigList(), nil)
 
 	cfgSection:addButton("Salvar config", function()
 		local name = cfgNameCtrl:Get()
 		if not name or name:gsub(" ", "") == "" then return end
 		local ok, err = SaveConfig(name)
 		if not ok then
-			Err("Salvar: " .. tostring(err))
+			print("[ecohub ERROR] Salvar: " .. tostring(err))
 		else
 			local nl = GetConfigList()
 			cfgListCtrl:SetList(nl)
@@ -1517,14 +1570,18 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 		local name = cfgListCtrl:Get()
 		if not name then return end
 		local ok, err = LoadConfig(name)
-		if not ok then Err("Carregar: " .. tostring(err)) end
+		if not ok then
+			print("[ecohub ERROR] Carregar: " .. tostring(err))
+		end
 	end, "download")
 
 	cfgSection:addButton("Sobrescrever config", function()
 		local name = cfgListCtrl:Get()
 		if not name then return end
 		local ok, err = SaveConfig(name)
-		if not ok then Err("Sobrescrever: " .. tostring(err)) end
+		if not ok then
+			print("[ecohub ERROR] Sobrescrever: " .. tostring(err))
+		end
 	end, "edit")
 
 	cfgSection:addButton("Deletar config", function()
@@ -1592,8 +1649,8 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	end)
 
 	local Minimized = false
-	local FullSize   = UDim2.new(0, 520, 0, 340)
-	local MiniSize   = UDim2.new(0, 520, 0, 32)
+	local FullSize  = UDim2.new(0, 520, 0, 340)
+	local MiniSize  = UDim2.new(0, 520, 0, 32)
 
 	local function DoMinimize(toMin)
 		Minimized = toMin
@@ -1786,7 +1843,7 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 		function PageObj:addSection(sname)
 			local ok, result = pcall(BuildSection, sname, PageScroll)
 			if not ok then
-				Err("addSection '" .. tostring(sname) .. "': " .. tostring(result))
+				print("[ecohub ERROR] addSection '" .. tostring(sname) .. "': " .. tostring(result))
 				return setmetatable({}, {__index = function() return function() end end})
 			end
 			return result
