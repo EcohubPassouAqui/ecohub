@@ -1384,15 +1384,6 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	TitleFix.Position = UDim2.new(0, 0, 0.5, 0)
 	TitleFix.Size = UDim2.new(1, 0, 0.5, 0)
 
-	local TitleDot = Instance.new("ImageLabel")
-	TitleDot.Parent = TitleBar
-	TitleDot.BackgroundTransparency = 1
-	TitleDot.Image = BRAND_IMAGE
-	TitleDot.Size = UDim2.new(0, 26, 0, 26)
-	TitleDot.AnchorPoint = Vector2.new(0, 0.5)
-	TitleDot.Position = UDim2.new(0, 8, 0.5, 0)
-	TitleDot.ScaleType = Enum.ScaleType.Fit
-
 	local VerLabel = Instance.new("TextLabel")
 	VerLabel.Parent = TitleBar
 	VerLabel.BackgroundTransparency = 1
