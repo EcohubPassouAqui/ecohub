@@ -1308,7 +1308,8 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 			return false, "nome invalido"
 		end
 		local data = { objects = {} }
-		for idx, opt in next, Library.Options do
+		local opts = Library.Options or {}
+		for idx, opt in next, opts do
 			if SaveIgnore[idx] then continue end
 			local t = opt.Type
 			if t == "Toggle" then
@@ -1343,7 +1344,8 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 		if not ok2 then return false, "decode falhou" end
 		for _, obj in ipairs(decoded.objects or {}) do
 			task.spawn(function()
-				local opt = Library.Options[obj.idx]
+				local opts = Library.Options or {}
+				local opt = opts[obj.idx]
 				if not opt then return end
 				if obj.type == "Toggle" then
 					opt:Set(obj.value)
