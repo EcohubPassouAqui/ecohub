@@ -1374,27 +1374,33 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	TitleBar.Parent = Main
 	TitleBar.BackgroundColor3 = C.SIDEBAR
 	TitleBar.BorderSizePixel = 0
+	TitleBar.Position = UDim2.new(0, 0, 0, 0)
 	TitleBar.Size = UDim2.new(1, 0, 0, 32)
-	Corner(TitleBar, 8)
+	TitleBar.ZIndex = 2
 
-	local TitleFix = Instance.new("Frame")
-	TitleFix.Parent = TitleBar
-	TitleFix.BackgroundColor3 = C.SIDEBAR
-	TitleFix.BorderSizePixel = 0
-	TitleFix.Position = UDim2.new(0, 0, 0.5, 0)
-	TitleFix.Size = UDim2.new(1, 0, 0.5, 0)
+	local TitleBarCornerFix = Instance.new("Frame")
+	TitleBarCornerFix.Parent = TitleBar
+	TitleBarCornerFix.BackgroundColor3 = C.SIDEBAR
+	TitleBarCornerFix.BorderSizePixel = 0
+	TitleBarCornerFix.Position = UDim2.new(0, 0, 0.5, 0)
+	TitleBarCornerFix.Size = UDim2.new(1, 0, 0.5, 0)
+	TitleBarCornerFix.ZIndex = 2
+
+	local TitleRound = Instance.new("UICorner")
+	TitleRound.CornerRadius = UDim.new(0, 8)
+	TitleRound.Parent = TitleBar
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.Parent = TitleBar
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Position = UDim2.new(0, 10, 0, 0)
-	TitleLabel.Size = UDim2.new(0.6, 0, 1, 0)
+	TitleLabel.Size = UDim2.new(0.65, 0, 1, 0)
 	TitleLabel.Font = Enum.Font.GothamBold
 	TitleLabel.Text = windowname or "ecohub"
 	TitleLabel.TextColor3 = C.TEXT
 	TitleLabel.TextSize = 12
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-	TitleLabel.ZIndex = 3
+	TitleLabel.ZIndex = 5
 
 	local VerLabel = Instance.new("TextLabel")
 	VerLabel.Parent = TitleBar
@@ -1406,6 +1412,7 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	VerLabel.TextColor3 = C.DIM
 	VerLabel.TextSize = 10
 	VerLabel.TextXAlignment = Enum.TextXAlignment.Right
+	VerLabel.ZIndex = 5
 
 	local Body = Instance.new("Frame")
 	Body.Name = "Body"
