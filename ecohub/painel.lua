@@ -5,6 +5,16 @@ local TextService      = game:GetService("TextService")
 local Library = {}
 Library.__index = Library
 Library.Options = {}
+Library._optCount = 0
+
+local function RegOption(ctrl, typeName)
+	Library._optCount = Library._optCount + 1
+	local idx = "_opt_" .. Library._optCount
+	ctrl.Type = typeName
+	ctrl._idx = idx
+	Library.Options[idx] = ctrl
+	return idx
+end
 
 local function Err(msg)
 	print("[ecohub ERROR] " .. tostring(msg))
@@ -624,6 +634,7 @@ local function BuildSection(sectionname, PageScroll)
 			end
 			function ctrl:GetKey() return CKey end
 		end
+		RegOption(ctrl, "Toggle")
 		return ctrl
 	end
 
@@ -740,6 +751,7 @@ local function BuildSection(sectionname, PageScroll)
 			VL.Text = tostring(cur)
 		end
 		function ctrl:Get() return cur end
+		RegOption(ctrl, "Slider")
 		return ctrl
 	end
 
@@ -798,6 +810,7 @@ local function BuildSection(sectionname, PageScroll)
 		function ctrl:Set(v)
 			Input.Text = tostring(v or "")
 		end
+		RegOption(ctrl, "TextBox")
 		return ctrl
 	end
 
@@ -974,6 +987,7 @@ local function BuildSection(sectionname, PageScroll)
 		function ctrl:SetList(newList)
 			BuildItems(newList)
 		end
+		RegOption(ctrl, "Dropdown")
 		return ctrl
 	end
 
@@ -1057,6 +1071,7 @@ local function BuildSection(sectionname, PageScroll)
 			ResizeKb()
 		end
 		function ctrl:Get() return CK end
+		RegOption(ctrl, "Keybind")
 		return ctrl
 	end
 
@@ -1264,6 +1279,7 @@ local function BuildSection(sectionname, PageScroll)
 			HexL.Text = ToHex(c)
 		end
 		function ctrl:Get() return CurColor end
+		RegOption(ctrl, "ColorPicker")
 		return ctrl
 	end
 
@@ -1312,20 +1328,23 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 		for idx, opt in next, opts do
 			if SaveIgnore[idx] then continue end
 			local t = opt.Type
+			local v = opt:Get()
 			if t == "Toggle" then
-				table.insert(data.objects, { type = "Toggle", idx = idx, value = opt.Value })
+				table.insert(data.objects, { type = "Toggle", idx = idx, value = v })
 			elseif t == "Slider" then
-				table.insert(data.objects, { type = "Slider", idx = idx, value = opt.Value })
+				table.insert(data.objects, { type = "Slider", idx = idx, value = v })
 			elseif t == "Dropdown" then
-				table.insert(data.objects, { type = "Dropdown", idx = idx, value = opt.Value })
+				table.insert(data.objects, { type = "Dropdown", idx = idx, value = v })
 			elseif t == "ColorPicker" then
-				if opt.Value then
-					table.insert(data.objects, { type = "ColorPicker", idx = idx, value = opt.Value:ToHex() })
+				if v then
+					table.insert(data.objects, { type = "ColorPicker", idx = idx, value = string.format("%02X%02X%02X", math.floor(v.R*255), math.floor(v.G*255), math.floor(v.B*255)) })
 				end
 			elseif t == "Keybind" then
-				table.insert(data.objects, { type = "Keybind", idx = idx, value = opt.Value })
+				if v then
+					table.insert(data.objects, { type = "Keybind", idx = idx, value = v.Name })
+				end
 			elseif t == "TextBox" then
-				table.insert(data.objects, { type = "TextBox", idx = idx, value = opt.Value })
+				table.insert(data.objects, { type = "TextBox", idx = idx, value = v })
 			end
 		end
 		local ok2, encoded = pcall(function() return HttpService:JSONEncode(data) end)
@@ -1348,14 +1367,25 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 				local opt = opts[obj.idx]
 				if not opt then return end
 				if obj.type == "Toggle" then
-					opt:Set(obj.value)
+					opt:Set(obj.value == true or obj.value == "true")
 				elseif obj.type == "Slider" then
 					opt:Set(tonumber(obj.value) or 0)
 				elseif obj.type == "Dropdown" then
 					opt:Set(obj.value)
 				elseif obj.type == "ColorPicker" then
-					local ok3, col = pcall(Color3.fromHex, obj.value)
+					local ok3, col = pcall(function()
+						return Color3.fromRGB(
+							tonumber("0x"..obj.value:sub(1,2)),
+							tonumber("0x"..obj.value:sub(3,4)),
+							tonumber("0x"..obj.value:sub(5,6))
+						)
+					end)
 					if ok3 then opt:Set(col) end
+				elseif obj.type == "Keybind" then
+					if obj.value then
+						local ok3, kc = pcall(function() return Enum.KeyCode[obj.value] end)
+						if ok3 and kc then opt:Set(kc) end
+					end
 				elseif obj.type == "TextBox" then
 					opt:Set(tostring(obj.value))
 				end
@@ -1628,11 +1658,13 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 		pcall(delfile, ConfigSettingsFolder .. "/autoload.txt")
 	end, "x-circle")
 
-	SaveIgnore["_cfg_name"] = true
-	SaveIgnore["_cfg_list"] = true
+	local cfgNameIdx = cfgNameCtrl._idx
+	local cfgListIdx = cfgListCtrl._idx
+	if cfgNameIdx then SaveIgnore[cfgNameIdx] = true end
+	if cfgListIdx then SaveIgnore[cfgListIdx] = true end
 
 	task.spawn(function()
-		task.wait(0.5)
+		task.wait(1)
 		local ok, content = pcall(readfile, ConfigSettingsFolder .. "/autoload.txt")
 		if ok and content and content:gsub("%s","") ~= "" then
 			LoadConfig(content:gsub("%s",""))
