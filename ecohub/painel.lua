@@ -1441,9 +1441,9 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	SidebarBrandTop.Parent = Sidebar
 	SidebarBrandTop.BackgroundTransparency = 1
 	SidebarBrandTop.Image = BRAND_IMAGE
-	SidebarBrandTop.Size = UDim2.new(0, 36, 0, 36)
+	SidebarBrandTop.Size = UDim2.new(0, 54, 0, 54)
 	SidebarBrandTop.AnchorPoint = Vector2.new(0.5, 0)
-	SidebarBrandTop.Position = UDim2.new(0.5, 0, 0, 5)
+	SidebarBrandTop.Position = UDim2.new(0.5, 0, 0, 4)
 	SidebarBrandTop.ScaleType = Enum.ScaleType.Fit
 	SidebarBrandTop.ImageTransparency = 0
 
@@ -1451,15 +1451,15 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	SidebarSepTop.Parent = Sidebar
 	SidebarSepTop.BackgroundColor3 = C.SEP
 	SidebarSepTop.BorderSizePixel = 0
-	SidebarSepTop.Position = UDim2.new(0, 6, 0, 45)
+	SidebarSepTop.Position = UDim2.new(0, 6, 0, 62)
 	SidebarSepTop.Size = UDim2.new(1, -12, 0, 1)
 
 	local TabScroll = Instance.new("ScrollingFrame")
 	TabScroll.Parent = Sidebar
 	TabScroll.BackgroundTransparency = 1
 	TabScroll.BorderSizePixel = 0
-	TabScroll.Position = UDim2.new(0, 6, 0, 50)
-	TabScroll.Size = UDim2.new(1, -12, 1, -140)
+	TabScroll.Position = UDim2.new(0, 6, 0, 67)
+	TabScroll.Size = UDim2.new(1, -12, 1, -105)
 	TabScroll.ScrollBarThickness = 2
 	TabScroll.ScrollBarImageColor3 = C.ACCENT
 	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -1469,24 +1469,6 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	TabLayout.Parent = TabScroll
 	TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	TabLayout.Padding = UDim.new(0, 3)
-
-	local SidebarSepMid = Instance.new("Frame")
-	SidebarSepMid.Parent = Sidebar
-	SidebarSepMid.BackgroundColor3 = C.SEP
-	SidebarSepMid.BorderSizePixel = 0
-	SidebarSepMid.AnchorPoint = Vector2.new(0, 1)
-	SidebarSepMid.Position = UDim2.new(0, 6, 1, -88)
-	SidebarSepMid.Size = UDim2.new(1, -12, 0, 1)
-
-	local SidebarBrandImg = Instance.new("ImageLabel")
-	SidebarBrandImg.Parent = Sidebar
-	SidebarBrandImg.BackgroundTransparency = 1
-	SidebarBrandImg.Image = BRAND_IMAGE
-	SidebarBrandImg.Size = UDim2.new(0, 42, 0, 42)
-	SidebarBrandImg.AnchorPoint = Vector2.new(0.5, 1)
-	SidebarBrandImg.Position = UDim2.new(0.5, 0, 1, -43)
-	SidebarBrandImg.ScaleType = Enum.ScaleType.Fit
-	SidebarBrandImg.ImageTransparency = 0.12
 
 	local SidebarSep = Instance.new("Frame")
 	SidebarSep.Parent = Sidebar
