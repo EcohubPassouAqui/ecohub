@@ -1384,6 +1384,17 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	TitleFix.Position = UDim2.new(0, 0, 0.5, 0)
 	TitleFix.Size = UDim2.new(1, 0, 0.5, 0)
 
+	local TitleLabel = Instance.new("TextLabel")
+	TitleLabel.Parent = TitleBar
+	TitleLabel.BackgroundTransparency = 1
+	TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+	TitleLabel.Size = UDim2.new(0.6, 0, 1, 0)
+	TitleLabel.Font = Enum.Font.GothamBold
+	TitleLabel.Text = windowname or "ecohub"
+	TitleLabel.TextColor3 = C.TEXT
+	TitleLabel.TextSize = 12
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
 	local VerLabel = Instance.new("TextLabel")
 	VerLabel.Parent = TitleBar
 	VerLabel.BackgroundTransparency = 1
