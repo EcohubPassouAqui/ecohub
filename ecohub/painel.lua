@@ -247,32 +247,40 @@ local Icons = {
 }
 Library.Icons = Icons
 
-local CHECK_TEXTURE    = "rbxassetid://10709790644"
+-- Textura check lucide oficial
+local CHECK_TEX  = "rbxassetid://10709790644"
+-- Textura knob do toggle (circulo branco suave)
+local KNOB_TEX   = "rbxassetid://10709798174"
 
 local C = {
-	BG      = Color3.fromRGB(8,   8,   10),
+	BG      = Color3.fromRGB(10,  10,  14),
 	SIDEBAR = Color3.fromRGB(7,   7,   10),
 	ELEM    = Color3.fromRGB(18,  16,  26),
 	SECT    = Color3.fromRGB(13,  11,  20),
 	HOVER   = Color3.fromRGB(28,  24,  40),
 	ACTIVE  = Color3.fromRGB(22,  18,  34),
-	ACCENT  = Color3.fromRGB(255, 255, 255),
+	ACCENT  = Color3.fromRGB(140, 80,  255),
+	ACCENT2 = Color3.fromRGB(110, 50,  220),
 	TEXT    = Color3.fromRGB(255, 255, 255),
 	DIM     = Color3.fromRGB(130, 120, 155),
-	OFF     = Color3.fromRGB(25,  22,  36),
-	CHECK   = Color3.fromRGB(45,  200, 85),
+	OFF     = Color3.fromRGB(22,  19,  32),
+	CHECK   = Color3.fromRGB(50,  210, 90),
 	BORDER  = Color3.fromRGB(38,  30,  58),
 	SEP     = Color3.fromRGB(40,  32,  62),
-	KEYBG   = Color3.fromRGB(20,  18,  30),
-	SLIDERBG   = Color3.fromRGB(20, 17, 32),
-	SLIDERFILL = Color3.fromRGB(255, 255, 255),
+	KEYBG   = Color3.fromRGB(16,  14,  24),
+	SLIDER  = Color3.fromRGB(26,  22,  38),
+	DD_BG   = Color3.fromRGB(14,  12,  20),
+	DD_ITEM = Color3.fromRGB(20,  17,  30),
+	DD_SEL  = Color3.fromRGB(30,  22,  50),
+	DD_HOV  = Color3.fromRGB(26,  22,  40),
 }
 
 local TI = {
-	Fast = TweenInfo.new(0.12, Enum.EasingStyle.Quad),
-	Med  = TweenInfo.new(0.18, Enum.EasingStyle.Quad),
-	Slow = TweenInfo.new(0.25, Enum.EasingStyle.Quart),
-	Key  = TweenInfo.new(0.08, Enum.EasingStyle.Quad),
+	Fast  = TweenInfo.new(0.12, Enum.EasingStyle.Quad),
+	Med   = TweenInfo.new(0.18, Enum.EasingStyle.Quad),
+	Slow  = TweenInfo.new(0.25, Enum.EasingStyle.Quart),
+	Quint = TweenInfo.new(0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+	Key   = TweenInfo.new(0.08, Enum.EasingStyle.Quad),
 }
 
 local function Tw(obj, props, ti)
@@ -298,9 +306,9 @@ end
 
 local function GetKeyName(kc)
 	local m = {
-		Return="Enter", LeftShift="LShift", RightShift="RShift",
-		LeftControl="LCtrl", RightControl="RCtrl",
-		LeftAlt="LAlt", RightAlt="RAlt",
+		Return = "Enter", LeftShift = "LShift", RightShift = "RShift",
+		LeftControl = "LCtrl", RightControl = "RCtrl",
+		LeftAlt = "LAlt", RightAlt = "RAlt",
 	}
 	return m[kc.Name] or kc.Name
 end
@@ -325,20 +333,6 @@ local function MkIcon(parent, iconName, sz, posX, posY, col, anchorX, anchorY)
 	return img
 end
 
-local function MkCheckIcon(parent)
-	local img = Instance.new("ImageLabel")
-	img.BackgroundTransparency = 1
-	img.Image = CHECK_TEXTURE
-	img.ImageColor3 = Color3.fromRGB(255, 255, 255)
-	img.ImageTransparency = 1
-	img.Size = UDim2.new(0, 12, 0, 12)
-	img.Position = UDim2.new(0.5, 0, 0.5, 0)
-	img.AnchorPoint = Vector2.new(0.5, 0.5)
-	img.ScaleType = Enum.ScaleType.Fit
-	img.Parent = parent
-	return img
-end
-
 local function DestroyOld()
 	local ok, e = pcall(function()
 		local g = game:GetService("CoreGui"):FindFirstChild("ecohub_gui")
@@ -349,33 +343,94 @@ end
 DestroyOld()
 task.wait(0.05)
 
+-- ============================================================
+-- CHECKBOX melhorado: borda colorida, fill animado, check icon
+-- ============================================================
 local function MakeCheckbox(parent, On)
+	local BOX_S = 16
+
 	local ChkBox = Instance.new("Frame")
 	ChkBox.Parent = parent
-	ChkBox.BackgroundColor3 = C.OFF
+	ChkBox.BackgroundColor3 = On and C.CHECK or C.OFF
 	ChkBox.BorderSizePixel = 0
 	ChkBox.Position = UDim2.new(0, 6, 0.5, 0)
 	ChkBox.AnchorPoint = Vector2.new(0, 0.5)
-	ChkBox.Size = UDim2.new(0, 16, 0, 16)
-	Corner(ChkBox, 3)
-	local chkStroke = MkStroke(ChkBox, On and C.CHECK or C.BORDER)
+	ChkBox.Size = UDim2.new(0, BOX_S, 0, BOX_S)
+	Corner(ChkBox, 4)
+	local chkStroke = MkStroke(ChkBox, On and C.CHECK or C.BORDER, 1.5)
 
-	local ChkFill = Instance.new("Frame")
-	ChkFill.Parent = ChkBox
-	ChkFill.AnchorPoint = Vector2.new(0.5, 0.5)
-	ChkFill.BackgroundColor3 = C.CHECK
-	ChkFill.BackgroundTransparency = On and 0 or 1
-	ChkFill.BorderSizePixel = 0
-	ChkFill.Position = UDim2.new(0.5, 0, 0.5, 0)
-	ChkFill.Size = On and UDim2.new(0, 10, 0, 10) or UDim2.new(0, 0, 0, 0)
-	Corner(ChkFill, 2)
-
-	local ChkImg = MkCheckIcon(ChkBox)
+	-- Icone check (lucide-check texture)
+	local ChkImg = Instance.new("ImageLabel")
+	ChkImg.Parent = ChkBox
+	ChkImg.BackgroundTransparency = 1
+	ChkImg.Image = CHECK_TEX
+	ChkImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
 	ChkImg.ImageTransparency = On and 0 or 1
+	ChkImg.Size = UDim2.new(0, 10, 0, 10)
+	ChkImg.Position = UDim2.new(0.5, 0, 0.5, 0)
+	ChkImg.AnchorPoint = Vector2.new(0.5, 0.5)
+	ChkImg.ScaleType = Enum.ScaleType.Fit
 
-	return ChkBox, ChkFill, ChkImg, chkStroke
+	local function Update(state)
+		Tw(ChkBox,  {BackgroundColor3 = state and C.CHECK or C.OFF}, TI.Quint)
+		Tw(ChkImg,  {ImageTransparency = state and 0 or 1},           TI.Quint)
+		chkStroke.Color = state and C.CHECK or C.BORDER
+	end
+
+	return ChkBox, ChkImg, chkStroke, Update
 end
 
+-- ============================================================
+-- TOGGLE SLIDER melhorado: track + knob com texture + animacao
+-- (inspirado no codigo original fornecido)
+-- ============================================================
+local function MakeToggleSlider(parent, On)
+	local TW, TH  = 36, 18
+	local KS      = 12
+	local K_OFF   = 2
+	local K_ON    = TW - KS - 2
+
+	local Track = Instance.new("Frame")
+	Track.Parent = parent
+	Track.BackgroundColor3 = On and C.ACCENT or C.OFF
+	Track.BorderSizePixel = 0
+	Track.Position = UDim2.new(0, 6, 0.5, 0)
+	Track.AnchorPoint = Vector2.new(0, 0.5)
+	Track.Size = UDim2.new(0, TW, 0, TH)
+	Corner(Track, TH // 2)
+	local trkStroke = MkStroke(Track, On and C.ACCENT or C.BORDER, 1)
+
+	-- Knob com imagem circular (lucide-circle como textura suave)
+	local Knob = Instance.new("ImageLabel")
+	Knob.Parent = Track
+	Knob.BackgroundTransparency = 1
+	Knob.Image = KNOB_TEX
+	Knob.ImageColor3 = Color3.fromRGB(255, 255, 255)
+	Knob.ImageTransparency = On and 0 or 0.5
+	Knob.Size = UDim2.new(0, KS, 0, KS)
+	Knob.Position = UDim2.new(0, On and K_ON or K_OFF, 0.5, 0)
+	Knob.AnchorPoint = Vector2.new(0, 0.5)
+	Knob.ScaleType = Enum.ScaleType.Fit
+
+	local function Update(state)
+		-- Track cor e stroke
+		Tw(Track, {BackgroundColor3 = state and C.ACCENT or C.OFF}, TI.Quint)
+		trkStroke.Color = state and C.ACCENT or C.BORDER
+		-- Knob posicao e opacidade (igual ao codigo original)
+		TweenService:Create(
+			Knob,
+			TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+			{Position = UDim2.new(0, state and K_ON or K_OFF, 0.5, 0)}
+		):Play()
+		Knob.ImageTransparency = state and 0 or 0.5
+	end
+
+	return Track, Update, TW
+end
+
+-- ============================================================
+-- BUILD SECTION
+-- ============================================================
 local function BuildSection(sectionname, PageScroll)
 	local Outer = Instance.new("Frame")
 	Outer.Parent = PageScroll
@@ -384,13 +439,13 @@ local function BuildSection(sectionname, PageScroll)
 	Outer.Size = UDim2.new(1, 0, 0, 0)
 	Outer.AutomaticSize = Enum.AutomaticSize.Y
 	Corner(Outer, 6)
-	MkStroke(Outer)
+	MkStroke(Outer, C.BORDER, 1)
 
 	local SecTitle = Instance.new("TextLabel")
 	SecTitle.Parent = Outer
 	SecTitle.BackgroundTransparency = 1
 	SecTitle.Position = UDim2.new(0, 10, 0, 0)
-	SecTitle.Size = UDim2.new(1, -10, 0, 22)
+	SecTitle.Size = UDim2.new(1, -10, 0, 20)
 	SecTitle.Font = Enum.Font.GothamSemibold
 	SecTitle.Text = sectionname
 	SecTitle.TextColor3 = C.DIM
@@ -401,15 +456,15 @@ local function BuildSection(sectionname, PageScroll)
 	SecContent.Parent = Outer
 	SecContent.BackgroundTransparency = 1
 	SecContent.BorderSizePixel = 0
-	SecContent.Position = UDim2.new(0, 0, 0, 22)
+	SecContent.Position = UDim2.new(0, 0, 0, 20)
 	SecContent.Size = UDim2.new(1, 0, 0, 0)
 	SecContent.AutomaticSize = Enum.AutomaticSize.Y
 
 	local SP = Instance.new("UIPadding")
 	SP.Parent = SecContent
 	SP.PaddingBottom = UDim.new(0, 6)
-	SP.PaddingLeft = UDim.new(0, 5)
-	SP.PaddingRight = UDim.new(0, 5)
+	SP.PaddingLeft   = UDim.new(0, 5)
+	SP.PaddingRight  = UDim.new(0, 5)
 
 	local SL = Instance.new("UIListLayout")
 	SL.Parent = SecContent
@@ -423,14 +478,21 @@ local function BuildSection(sectionname, PageScroll)
 		f.BorderSizePixel = 0
 		f.Size = UDim2.new(1, 0, 0, h)
 		Corner(f, 5)
+		MkStroke(f, C.BORDER, 1)
 		return f
 	end
 
 	local SecObj = {}
 
-	function SecObj:addButton(name, callback)
+	-- BUTTON
+	function SecObj:addButton(name, callback, iconName)
 		local cb = callback or function() end
 		local f = Base(28)
+		local padL = 0
+		if iconName then
+			local ic = MkIcon(f, iconName, UDim2.new(0, 12, 0, 12), 8, 0, C.TEXT, 0, 0.5)
+			if ic then padL = 22 end
+		end
 		local btn = Instance.new("TextButton")
 		btn.Parent = f
 		btn.BackgroundTransparency = 1
@@ -440,12 +502,22 @@ local function BuildSection(sectionname, PageScroll)
 		btn.Text = name or "Button"
 		btn.TextColor3 = C.TEXT
 		btn.TextSize = 11
-		btn.TextXAlignment = Enum.TextXAlignment.Center
-		btn.MouseEnter:Connect(function() Tw(f, {BackgroundColor3 = C.HOVER}) end)
-		btn.MouseLeave:Connect(function() Tw(f, {BackgroundColor3 = C.ELEM}) end)
+		if padL > 0 then
+			btn.TextXAlignment = Enum.TextXAlignment.Left
+			local p = Instance.new("UIPadding")
+			p.PaddingLeft = UDim.new(0, padL + 4)
+			p.Parent = btn
+		else
+			btn.TextXAlignment = Enum.TextXAlignment.Center
+		end
+		btn.MouseEnter:Connect(function()    Tw(f, {BackgroundColor3 = C.HOVER}) end)
+		btn.MouseLeave:Connect(function()    Tw(f, {BackgroundColor3 = C.ELEM})  end)
 		btn.MouseButton1Down:Connect(function()
-			Tw(f, {BackgroundColor3 = C.ACCENT})
-			task.delay(0.14, function()
+			Tw(f, {BackgroundColor3 = C.ACCENT2})
+		end)
+		btn.MouseButton1Up:Connect(function()
+			Tw(f, {BackgroundColor3 = C.HOVER})
+			task.delay(0.1, function()
 				Tw(f, {BackgroundColor3 = C.ELEM})
 				local ok, e = pcall(cb)
 				if not ok then Err("Button '" .. tostring(name) .. "': " .. tostring(e)) end
@@ -461,28 +533,40 @@ local function BuildSection(sectionname, PageScroll)
 		f.Size = UDim2.new(1, 0, 0, 1)
 	end
 
-	local function ToggleCore(togglename, default, callback, withBind, defaultKey, iconName)
-		local cb       = callback or function() end
-		local On       = (default == true)
-		local CKey     = withBind and (defaultKey or nil) or nil
+	-- TOGGLE core (suporta checkbox E slider modes)
+	local function ToggleCore(togglename, default, callback, withBind, defaultKey, iconName, useSlider)
+		local cb        = callback or function() end
+		local On        = (default == true)
+		local CKey      = withBind and (defaultKey or nil) or nil
 		local Listening = false
 
 		local f = Base(28)
 
-		local ChkBox, ChkFill, ChkImg, chkStroke = MakeCheckbox(f, On)
+		-- Widget: slider (addToggle/addToggleSimple) ou checkbox (addCheck)
+		local UpdateWidget
+		local widgetW = 0
+		if useSlider then
+			local _, upd, tw = MakeToggleSlider(f, On)
+			UpdateWidget = upd
+			widgetW = tw + 10
+		else
+			local _, _, _, upd = MakeCheckbox(f, On)
+			UpdateWidget = upd
+			widgetW = 16 + 10
+		end
 
 		local iconOff = 0
 		if iconName then
-			local ic = MkIcon(f, iconName, UDim2.new(0, 13, 0, 13), 28, 0, C.DIM, 0, 0.5)
-			if ic then iconOff = 17 end
+			local ic = MkIcon(f, iconName, UDim2.new(0, 12, 0, 12), widgetW + 4, 0, C.DIM, 0, 0.5)
+			if ic then iconOff = 16 end
 		end
 
-		local rightPad = withBind and 66 or 10
+		local rightPad = withBind and 66 or 8
 		local Lbl = Instance.new("TextLabel")
 		Lbl.Parent = f
 		Lbl.BackgroundTransparency = 1
-		Lbl.Position = UDim2.new(0, 28 + iconOff, 0, 0)
-		Lbl.Size = UDim2.new(1, -(28 + iconOff + rightPad), 1, 0)
+		Lbl.Position = UDim2.new(0, widgetW + 4 + iconOff, 0, 0)
+		Lbl.Size = UDim2.new(1, -(widgetW + 4 + iconOff + rightPad), 1, 0)
 		Lbl.Font = Enum.Font.GothamSemibold
 		Lbl.Text = togglename or "Toggle"
 		Lbl.TextColor3 = On and C.TEXT or C.DIM
@@ -497,18 +581,18 @@ local function BuildSection(sectionname, PageScroll)
 			KbBtn.BorderSizePixel = 0
 			KbBtn.AnchorPoint = Vector2.new(1, 0.5)
 			KbBtn.Position = UDim2.new(1, -6, 0.5, 0)
-			KbBtn.Size = UDim2.new(0, 54, 0, 18)
+			KbBtn.Size = UDim2.new(0, 54, 0, 16)
 			KbBtn.AutoButtonColor = false
 			KbBtn.Font = Enum.Font.GothamSemibold
 			KbBtn.Text = CKey and "[" .. GetKeyName(CKey) .. "]" or "[ -- ]"
 			KbBtn.TextColor3 = C.DIM
 			KbBtn.TextSize = 9
 			Corner(KbBtn, 4)
-			kbStroke = MkStroke(KbBtn, C.BORDER)
+			kbStroke = MkStroke(KbBtn, C.BORDER, 1)
 
 			local function ResizeKb()
 				local sz = TextService:GetTextSize(KbBtn.Text, KbBtn.TextSize, KbBtn.Font, Vector2.new(math.huge, math.huge))
-				Tw(KbBtn, {Size = UDim2.new(0, math.max(54, sz.X + 14), 0, 18)}, TI.Key)
+				Tw(KbBtn, {Size = UDim2.new(0, math.max(54, sz.X + 14), 0, 16)}, TI.Key)
 			end
 			KbBtn:GetPropertyChangedSignal("Text"):Connect(ResizeKb)
 			ResizeKb()
@@ -524,12 +608,7 @@ local function BuildSection(sectionname, PageScroll)
 		end
 
 		local function UpdateVisuals()
-			Tw(ChkFill, {
-				BackgroundTransparency = On and 0 or 1,
-				Size = On and UDim2.new(0, 10, 0, 10) or UDim2.new(0, 0, 0, 0),
-			}, TI.Fast)
-			Tw(ChkImg, {ImageTransparency = On and 0 or 1}, TI.Fast)
-			chkStroke.Color = On and C.CHECK or C.BORDER
+			UpdateWidget(On)
 			Tw(Lbl, {TextColor3 = On and C.TEXT or C.DIM}, TI.Fast)
 		end
 
@@ -542,8 +621,8 @@ local function BuildSection(sectionname, PageScroll)
 		HitBtn.Text = ""
 		HitBtn.ZIndex = 5
 
-		HitBtn.MouseEnter:Connect(function() Tw(f, {BackgroundColor3 = C.HOVER}) end)
-		HitBtn.MouseLeave:Connect(function() Tw(f, {BackgroundColor3 = C.ELEM}) end)
+		HitBtn.MouseEnter:Connect(function()    Tw(f, {BackgroundColor3 = C.HOVER}) end)
+		HitBtn.MouseLeave:Connect(function()    Tw(f, {BackgroundColor3 = C.ELEM})  end)
 		HitBtn.MouseButton1Click:Connect(function()
 			if Listening then return end
 			On = not On
@@ -567,7 +646,7 @@ local function BuildSection(sectionname, PageScroll)
 					KbBtn.TextColor3 = C.DIM
 					kbStroke.Color = C.BORDER
 					local sz = TextService:GetTextSize(KbBtn.Text, KbBtn.TextSize, KbBtn.Font, Vector2.new(math.huge, math.huge))
-					Tw(KbBtn, {Size = UDim2.new(0, math.max(54, sz.X + 14), 0, 18)}, TI.Key)
+					Tw(KbBtn, {Size = UDim2.new(0, math.max(54, sz.X + 14), 0, 16)}, TI.Key)
 					return
 				end
 				if not gp and CKey and inp.KeyCode == CKey then
@@ -594,34 +673,47 @@ local function BuildSection(sectionname, PageScroll)
 				CKey = kc
 				KbBtn.Text = kc and "[" .. GetKeyName(kc) .. "]" or "[ -- ]"
 				local sz = TextService:GetTextSize(KbBtn.Text, KbBtn.TextSize, KbBtn.Font, Vector2.new(math.huge, math.huge))
-				Tw(KbBtn, {Size = UDim2.new(0, math.max(54, sz.X + 14), 0, 18)}, TI.Key)
+				Tw(KbBtn, {Size = UDim2.new(0, math.max(54, sz.X + 14), 0, 16)}, TI.Key)
 			end
 			function ctrl:GetKey() return CKey end
 		end
 		return ctrl
 	end
 
-	function SecObj:addToggle(togglename, default, callback, defaultKey)
-		return ToggleCore(togglename, default, callback, true, defaultKey, nil)
+	-- addToggle = slider + keybind
+	function SecObj:addToggle(togglename, default, callback, defaultKey, iconName)
+		return ToggleCore(togglename, default, callback, true, defaultKey, iconName, true)
+	end
+	-- addToggleSimple = slider sem keybind
+	function SecObj:addToggleSimple(togglename, default, callback, iconName)
+		return ToggleCore(togglename, default, callback, false, nil, iconName, true)
+	end
+	-- addCheck = checkbox visual + keybind
+	function SecObj:addCheck(togglename, default, callback, defaultKey, iconName)
+		return ToggleCore(togglename, default, callback, true, defaultKey, iconName, false)
+	end
+	-- addCheckSimple = checkbox sem keybind
+	function SecObj:addCheckSimple(togglename, default, callback, iconName)
+		return ToggleCore(togglename, default, callback, false, nil, iconName, false)
 	end
 
-	function SecObj:addToggleSimple(togglename, default, callback)
-		return ToggleCore(togglename, default, callback, false, nil, nil)
-	end
-
-	function SecObj:addSlider(name, mn, mx, def, callback)
-		local cb = callback or function() end
+	-- SLIDER
+	function SecObj:addSlider(name, mn, mx, def, callback, iconName)
+		local cb  = callback or function() end
 		mn  = tonumber(mn) or 0
 		mx  = tonumber(mx) or 100
 		local cur = math.clamp(tonumber(def) or mn, mn, mx)
+		local f = Base(42)
 
-		local f = Base(50)
+		if iconName then
+			MkIcon(f, iconName, UDim2.new(0, 12, 0, 12), 6, 0, C.ACCENT, 0, 0.5)
+		end
 
 		local NL = Instance.new("TextLabel")
 		NL.Parent = f
 		NL.BackgroundTransparency = 1
-		NL.Position = UDim2.new(0, 10, 0, 6)
-		NL.Size = UDim2.new(1, -60, 0, 14)
+		NL.Position = UDim2.new(0, 10, 0, 4)
+		NL.Size = UDim2.new(1, -60, 0, 16)
 		NL.Font = Enum.Font.GothamSemibold
 		NL.Text = name or "Slider"
 		NL.TextColor3 = C.TEXT
@@ -631,9 +723,9 @@ local function BuildSection(sectionname, PageScroll)
 		local VL = Instance.new("TextLabel")
 		VL.Parent = f
 		VL.BackgroundTransparency = 1
-		VL.Position = UDim2.new(1, -54, 0, 6)
-		VL.Size = UDim2.new(0, 44, 0, 14)
-		VL.Font = Enum.Font.GothamBold
+		VL.Position = UDim2.new(1, -54, 0, 4)
+		VL.Size = UDim2.new(0, 44, 0, 16)
+		VL.Font = Enum.Font.GothamSemibold
 		VL.Text = tostring(cur)
 		VL.TextColor3 = C.ACCENT
 		VL.TextSize = 11
@@ -641,163 +733,180 @@ local function BuildSection(sectionname, PageScroll)
 
 		local TrackBg = Instance.new("Frame")
 		TrackBg.Parent = f
-		TrackBg.BackgroundColor3 = C.SLIDERBG
+		TrackBg.BackgroundColor3 = C.SLIDER
 		TrackBg.BorderSizePixel = 0
-		TrackBg.Position = UDim2.new(0, 10, 0, 32)
-		TrackBg.Size = UDim2.new(1, -20, 0, 8)
-		Corner(TrackBg, 4)
+		TrackBg.Position = UDim2.new(0, 10, 0, 28)
+		TrackBg.Size = UDim2.new(1, -20, 0, 6)
+		Corner(TrackBg, 3)
 		MkStroke(TrackBg, C.BORDER, 1)
 
 		local Fill = Instance.new("Frame")
 		Fill.Parent = TrackBg
-		Fill.BackgroundColor3 = C.SLIDERFILL
+		Fill.BackgroundColor3 = C.ACCENT
 		Fill.BorderSizePixel = 0
 		Fill.Size = UDim2.new((cur - mn) / (mx - mn), 0, 1, 0)
-		Corner(Fill, 4)
+		Corner(Fill, 3)
 
-		local GlowFrame = Instance.new("Frame")
-		GlowFrame.Parent = Fill
-		GlowFrame.AnchorPoint = Vector2.new(1, 0.5)
-		GlowFrame.Position = UDim2.new(1, 0, 0.5, 0)
-		GlowFrame.Size = UDim2.new(0, 12, 0, 12)
-		GlowFrame.BackgroundColor3 = C.ACCENT
-		GlowFrame.BorderSizePixel = 0
-		GlowFrame.ZIndex = 3
-		Corner(GlowFrame, 6)
-		MkStroke(GlowFrame, Color3.fromRGB(220, 220, 220), 1)
+		-- Knob do slider com textura
+		local Knob = Instance.new("ImageLabel")
+		Knob.Parent = TrackBg
+		Knob.BackgroundTransparency = 1
+		Knob.Image = KNOB_TEX
+		Knob.ImageColor3 = Color3.fromRGB(255, 255, 255)
+		Knob.Size = UDim2.new(0, 12, 0, 12)
+		Knob.AnchorPoint = Vector2.new(0.5, 0.5)
+		Knob.Position = UDim2.new((cur - mn) / (mx - mn), 0, 0.5, 0)
+		Knob.ScaleType = Enum.ScaleType.Fit
 
-		local Track = Instance.new("TextButton")
-		Track.Parent = f
-		Track.BackgroundTransparency = 1
-		Track.BorderSizePixel = 0
-		Track.Position = UDim2.new(0, 6, 0, 28)
-		Track.Size = UDim2.new(1, -12, 0, 16)
-		Track.AutoButtonColor = false
-		Track.Text = ""
-		Track.ZIndex = 4
+		local HitTrack = Instance.new("TextButton")
+		HitTrack.Parent = f
+		HitTrack.BackgroundTransparency = 1
+		HitTrack.BorderSizePixel = 0
+		HitTrack.Position = UDim2.new(0, 10, 0, 22)
+		HitTrack.Size = UDim2.new(1, -20, 0, 16)
+		HitTrack.AutoButtonColor = false
+		HitTrack.Text = ""
+		HitTrack.ZIndex = 5
 
 		local Drag = false
-
 		local function UpdateSlider(px)
 			local p = math.clamp((px - TrackBg.AbsolutePosition.X) / TrackBg.AbsoluteSize.X, 0, 1)
 			cur = math.floor(mn + (mx - mn) * p)
 			Fill.Size = UDim2.new(p, 0, 1, 0)
+			Knob.Position = UDim2.new(p, 0, 0.5, 0)
 			VL.Text = tostring(cur)
 			local ok, e = pcall(cb, cur)
 			if not ok then Err("Slider '" .. tostring(name) .. "': " .. tostring(e)) end
 		end
-
-		Track.MouseButton1Down:Connect(function()
+		HitTrack.MouseButton1Down:Connect(function()
 			Drag = true
-			Tw(GlowFrame, {Size = UDim2.new(0, 16, 0, 16), BackgroundColor3 = Color3.fromRGB(160, 100, 255)}, TI.Fast)
+			Tw(Knob, {Size = UDim2.new(0, 14, 0, 14)}, TI.Key)
 		end)
-
-		Track.MouseButton1Click:Connect(function()
+		HitTrack.MouseButton1Click:Connect(function()
 			local mp = UserInputService:GetMouseLocation()
 			UpdateSlider(mp.X)
 		end)
-
 		UserInputService.InputChanged:Connect(function(i)
 			if Drag and i.UserInputType == Enum.UserInputType.MouseMovement then
 				UpdateSlider(i.Position.X)
 			end
 		end)
-
 		UserInputService.InputEnded:Connect(function(i)
 			if i.UserInputType == Enum.UserInputType.MouseButton1 then
 				Drag = false
-				Tw(GlowFrame, {Size = UDim2.new(0, 12, 0, 12), BackgroundColor3 = C.ACCENT}, TI.Fast)
+				Tw(Knob, {Size = UDim2.new(0, 12, 0, 12)}, TI.Key)
 			end
 		end)
-
 		f.MouseEnter:Connect(function() Tw(f, {BackgroundColor3 = C.HOVER}) end)
-		f.MouseLeave:Connect(function() Tw(f, {BackgroundColor3 = C.ELEM}) end)
+		f.MouseLeave:Connect(function() Tw(f, {BackgroundColor3 = C.ELEM})  end)
 
 		local ctrl = {}
 		function ctrl:Set(v)
 			cur = math.clamp(v, mn, mx)
-			Fill.Size = UDim2.new((cur - mn) / (mx - mn), 0, 1, 0)
+			local p = (cur - mn) / (mx - mn)
+			Fill.Size = UDim2.new(p, 0, 1, 0)
+			Knob.Position = UDim2.new(p, 0, 0.5, 0)
 			VL.Text = tostring(cur)
 		end
 		function ctrl:Get() return cur end
 		return ctrl
 	end
 
-	function SecObj:addTextBox(name, placeholder, callback)
+	-- TEXTBOX
+	function SecObj:addTextBox(name, placeholder, callback, iconName)
 		local cb = callback or function() end
-		local f = Base(44)
+		local f = Base(28)
+
+		if iconName then
+			MkIcon(f, iconName, UDim2.new(0, 12, 0, 12), 7, 0, C.DIM, 0, 0.5)
+		end
 
 		local NL = Instance.new("TextLabel")
 		NL.Parent = f
 		NL.BackgroundTransparency = 1
-		NL.Position = UDim2.new(0, 10, 0, 4)
-		NL.Size = UDim2.new(1, -20, 0, 14)
+		NL.Position = UDim2.new(0, 10, 0, 0)
+		NL.Size = UDim2.new(0.52, 0, 1, 0)
 		NL.Font = Enum.Font.GothamSemibold
 		NL.Text = name or "TextBox"
 		NL.TextColor3 = C.TEXT
 		NL.TextSize = 11
 		NL.TextXAlignment = Enum.TextXAlignment.Left
 
-		local InputWrap = Instance.new("Frame")
-		InputWrap.Parent = f
-		InputWrap.BackgroundColor3 = C.SLIDERBG
-		InputWrap.BorderSizePixel = 0
-		InputWrap.Position = UDim2.new(0, 8, 0, 22)
-		InputWrap.Size = UDim2.new(1, -16, 0, 16)
-		Corner(InputWrap, 4)
-		local wrapStroke = MkStroke(InputWrap, C.BORDER, 1)
+		local InputBg = Instance.new("Frame")
+		InputBg.Parent = f
+		InputBg.BackgroundColor3 = C.SLIDER
+		InputBg.BorderSizePixel = 0
+		InputBg.Position = UDim2.new(0.52, 4, 0.5, -9)
+		InputBg.Size = UDim2.new(0.48, -14, 0, 18)
+		Corner(InputBg, 4)
+		local inpStroke = MkStroke(InputBg, C.BORDER, 1)
 
 		local Input = Instance.new("TextBox")
-		Input.Parent = InputWrap
+		Input.Parent = InputBg
 		Input.BackgroundTransparency = 1
 		Input.BorderSizePixel = 0
 		Input.Position = UDim2.new(0, 6, 0, 0)
 		Input.Size = UDim2.new(1, -12, 1, 0)
-		Input.Font = Enum.Font.Gotham
+		Input.Font = Enum.Font.GothamSemibold
 		Input.PlaceholderText = placeholder or ""
 		Input.PlaceholderColor3 = C.DIM
 		Input.Text = ""
 		Input.TextColor3 = C.TEXT
 		Input.TextSize = 10
-		Input.TextXAlignment = Enum.TextXAlignment.Left
 		Input.ClearTextOnFocus = false
 
 		Input.Focused:Connect(function()
-			Tw(InputWrap, {BackgroundColor3 = C.ACTIVE})
-			wrapStroke.Color = C.ACCENT
+			Tw(InputBg, {BackgroundColor3 = C.ACTIVE})
+			inpStroke.Color = C.ACCENT
 		end)
 		Input.FocusLost:Connect(function()
-			Tw(InputWrap, {BackgroundColor3 = C.SLIDERBG})
-			wrapStroke.Color = C.BORDER
+			Tw(InputBg, {BackgroundColor3 = C.SLIDER})
+			inpStroke.Color = C.BORDER
 			local ok, e = pcall(cb, tostring(Input.Text))
 			if not ok then Err("TextBox '" .. tostring(name) .. "': " .. tostring(e)) end
 		end)
-
-		f.MouseEnter:Connect(function() Tw(f, {BackgroundColor3 = C.HOVER}) end)
-		f.MouseLeave:Connect(function() Tw(f, {BackgroundColor3 = C.ELEM}) end)
 	end
 
-	function SecObj:addDropdown(name, list, callback)
+	-- ============================================================
+	-- DROPDOWN melhorado:
+	-- - Chevron icon animado (lucide-chevron-down)
+	-- - Lista flutuante inline com scroll
+	-- - Barra lateral de selecao por item (igual Linoria)
+	-- - Highlight verde/accent no item selecionado
+	-- - Animacao de abertura suave
+	-- ============================================================
+	function SecObj:addDropdown(name, list, callback, iconName)
 		local cb = callback or function() end
 		local Selected = nil
 		local Open = false
+		local OptionBtns = {}
+
+		local ITEM_H    = 26
+		local MAX_VIS   = 6
+		local listH     = math.min(#list * ITEM_H + 10, MAX_VIS * ITEM_H + 10)
+		local HDR_H     = 28
 
 		local Wrapper = Instance.new("Frame")
 		Wrapper.Parent = SecContent
 		Wrapper.BackgroundTransparency = 1
 		Wrapper.BorderSizePixel = 0
-		Wrapper.Size = UDim2.new(1, 0, 0, 28)
+		Wrapper.Size = UDim2.new(1, 0, 0, HDR_H)
 		Wrapper.ClipsDescendants = false
 
 		local Hdr = Instance.new("Frame")
 		Hdr.Parent = Wrapper
 		Hdr.BackgroundColor3 = C.ELEM
 		Hdr.BorderSizePixel = 0
-		Hdr.Size = UDim2.new(1, 0, 0, 28)
+		Hdr.Size = UDim2.new(1, 0, 0, HDR_H)
 		Hdr.ZIndex = 5
 		Corner(Hdr, 5)
+		local hdrStroke = MkStroke(Hdr, C.BORDER, 1)
 
 		local leftOff = 10
+		if iconName then
+			local ic = MkIcon(Hdr, iconName, UDim2.new(0, 12, 0, 12), 7, 0, C.DIM, 0, 0.5)
+			if ic then leftOff = 24 end
+		end
 
 		local DN = Instance.new("TextLabel")
 		DN.Parent = Hdr
@@ -815,7 +924,7 @@ local function BuildSection(sectionname, PageScroll)
 		DS.Parent = Hdr
 		DS.BackgroundTransparency = 1
 		DS.Position = UDim2.new(0.55, 0, 0, 0)
-		DS.Size = UDim2.new(0.45, -26, 1, 0)
+		DS.Size = UDim2.new(0.45, -28, 1, 0)
 		DS.Font = Enum.Font.Gotham
 		DS.Text = "none"
 		DS.TextColor3 = C.DIM
@@ -823,67 +932,70 @@ local function BuildSection(sectionname, PageScroll)
 		DS.TextXAlignment = Enum.TextXAlignment.Right
 		DS.ZIndex = 6
 
-		local DA = Instance.new("TextLabel")
-		DA.Parent = Hdr
-		DA.BackgroundTransparency = 1
-		DA.Position = UDim2.new(1, -22, 0, 0)
-		DA.Size = UDim2.new(0, 20, 1, 0)
-		DA.Font = Enum.Font.GothamBold
-		DA.Text = "v"
-		DA.TextColor3 = C.ACCENT
-		DA.TextSize = 10
-		DA.ZIndex = 6
+		-- Chevron icon (lucide-chevron-down)
+		local Chevron = Instance.new("ImageLabel")
+		Chevron.Parent = Hdr
+		Chevron.BackgroundTransparency = 1
+		Chevron.Image = Icons["lucide-chevron-down"]
+		Chevron.ImageColor3 = C.ACCENT
+		Chevron.Size = UDim2.new(0, 12, 0, 12)
+		Chevron.AnchorPoint = Vector2.new(1, 0.5)
+		Chevron.Position = UDim2.new(1, -8, 0.5, 0)
+		Chevron.ScaleType = Enum.ScaleType.Fit
+		Chevron.ZIndex = 6
 
+		-- Lista dropdown
 		local DL = Instance.new("Frame")
 		DL.Parent = Wrapper
-		DL.BackgroundColor3 = C.SECT
+		DL.BackgroundColor3 = C.DD_BG
 		DL.BorderSizePixel = 0
-		DL.Position = UDim2.new(0, 0, 0, 30)
+		DL.Position = UDim2.new(0, 0, 0, HDR_H + 2)
 		DL.Size = UDim2.new(1, 0, 0, 0)
 		DL.ZIndex = 20
 		DL.ClipsDescendants = true
 		DL.Visible = false
-		Corner(DL, 5)
-		MkStroke(DL)
+		Corner(DL, 6)
+		MkStroke(DL, C.ACCENT, 1)
 
-		local DS2 = Instance.new("ScrollingFrame")
-		DS2.Parent = DL
-		DS2.BackgroundTransparency = 1
-		DS2.BorderSizePixel = 0
-		DS2.Size = UDim2.new(1, 0, 1, 0)
-		DS2.ScrollBarThickness = 2
-		DS2.ScrollBarImageColor3 = C.ACCENT
-		DS2.ZIndex = 20
-		DS2.CanvasSize = UDim2.new(0, 0, 0, 0)
-		DS2.AutomaticCanvasSize = Enum.AutomaticSize.Y
+		local Scroll = Instance.new("ScrollingFrame")
+		Scroll.Parent = DL
+		Scroll.BackgroundTransparency = 1
+		Scroll.BorderSizePixel = 0
+		Scroll.Size = UDim2.new(1, 0, 1, 0)
+		Scroll.ScrollBarThickness = 2
+		Scroll.ScrollBarImageColor3 = C.ACCENT
+		Scroll.ZIndex = 20
+		Scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+		Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
-		local DIL = Instance.new("UIListLayout")
-		DIL.Parent = DS2
-		DIL.Padding = UDim.new(0, 2)
-		local DIP = Instance.new("UIPadding")
-		DIP.Parent = DS2
-		DIP.PaddingTop = UDim.new(0, 4)
-		DIP.PaddingBottom = UDim.new(0, 4)
-		DIP.PaddingLeft = UDim.new(0, 4)
-		DIP.PaddingRight = UDim.new(0, 4)
-
-		local tH = math.min(#list * 26 + 8, 130)
+		local ListLayout = Instance.new("UIListLayout")
+		ListLayout.Parent = Scroll
+		ListLayout.Padding = UDim.new(0, 2)
+		local ListPad = Instance.new("UIPadding")
+		ListPad.Parent = Scroll
+		ListPad.PaddingTop    = UDim.new(0, 5)
+		ListPad.PaddingBottom = UDim.new(0, 5)
+		ListPad.PaddingLeft   = UDim.new(0, 5)
+		ListPad.PaddingRight  = UDim.new(0, 5)
 
 		local function CloseDD()
 			Open = false
-			DA.Text = "v"
-			Tw(DL, {Size = UDim2.new(1, 0, 0, 0)})
-			task.delay(0.15, function()
+			Tw(Chevron, {Rotation = 0}, TI.Med)
+			hdrStroke.Color = C.BORDER
+			Tw(DL, {Size = UDim2.new(1, 0, 0, 0)}, TI.Med)
+			task.delay(0.18, function()
 				DL.Visible = false
-				Wrapper.Size = UDim2.new(1, 0, 0, 28)
+				Wrapper.Size = UDim2.new(1, 0, 0, HDR_H)
 			end)
 		end
+
 		local function OpenDD()
 			Open = true
-			DA.Text = "^"
+			Tw(Chevron, {Rotation = 180}, TI.Med)
+			hdrStroke.Color = C.ACCENT
 			DL.Visible = true
-			Tw(DL, {Size = UDim2.new(1, 0, 0, tH)})
-			Wrapper.Size = UDim2.new(1, 0, 0, 30 + tH)
+			Tw(DL, {Size = UDim2.new(1, 0, 0, listH)}, TI.Med)
+			Wrapper.Size = UDim2.new(1, 0, 0, HDR_H + 2 + listH)
 		end
 
 		local HB = Instance.new("TextButton")
@@ -897,29 +1009,73 @@ local function BuildSection(sectionname, PageScroll)
 			if Open then CloseDD() else OpenDD() end
 		end)
 		HB.MouseEnter:Connect(function() Tw(Hdr, {BackgroundColor3 = C.HOVER}) end)
-		HB.MouseLeave:Connect(function() Tw(Hdr, {BackgroundColor3 = C.ELEM}) end)
+		HB.MouseLeave:Connect(function() Tw(Hdr, {BackgroundColor3 = C.ELEM})  end)
+
+		-- Atualiza visual de todos os botoes
+		local function UpdateAllBtns(sel)
+			for _, b in ipairs(OptionBtns) do
+				local isSel = (b._item == sel)
+				-- Barra seletora lateral (inspirada no Linoria/docs fornecidos)
+				Tw(b._selBar, {Size = UDim2.new(0, 3, 0, isSel and 14 or 0)}, TI.Med)
+				b._selBar.Visible = true
+				Tw(b, {BackgroundColor3 = isSel and C.DD_SEL or C.DD_ITEM}, TI.Fast)
+				b._lbl.TextColor3 = isSel and C.TEXT or C.DIM
+			end
+		end
 
 		for _, item in ipairs(list) do
 			local Opt = Instance.new("TextButton")
-			Opt.Parent = DS2
-			Opt.BackgroundColor3 = C.ELEM
+			Opt.Parent = Scroll
+			Opt.BackgroundColor3 = C.DD_ITEM
 			Opt.BorderSizePixel = 0
-			Opt.Size = UDim2.new(1, 0, 0, 22)
+			Opt.Size = UDim2.new(1, 0, 0, ITEM_H)
 			Opt.AutoButtonColor = false
-			Opt.Font = Enum.Font.GothamSemibold
-			Opt.Text = tostring(item)
-			Opt.TextColor3 = C.TEXT
-			Opt.TextSize = 10
+			Opt.Text = ""
 			Opt.ZIndex = 21
 			Corner(Opt, 4)
-			Opt.MouseEnter:Connect(function() Tw(Opt, {BackgroundColor3 = C.HOVER}) end)
+			Opt._item = item
+
+			-- Barra lateral de selecao (igual ao ButtonSelector do doc)
+			local SelBar = Instance.new("Frame")
+			SelBar.Parent = Opt
+			SelBar.BackgroundColor3 = C.ACCENT
+			SelBar.BorderSizePixel = 0
+			SelBar.AnchorPoint = Vector2.new(0, 0.5)
+			SelBar.Position = UDim2.new(0, 0, 0.5, 0)
+			SelBar.Size = UDim2.new(0, 3, 0, 0)
+			Corner(SelBar, 2)
+			Opt._selBar = SelBar
+
+			local OptLbl = Instance.new("TextLabel")
+			OptLbl.Parent = Opt
+			OptLbl.BackgroundTransparency = 1
+			OptLbl.Position = UDim2.new(0, 10, 0, 0)
+			OptLbl.Size = UDim2.new(1, -18, 1, 0)
+			OptLbl.Font = Enum.Font.GothamSemibold
+			OptLbl.Text = tostring(item)
+			OptLbl.TextColor3 = C.DIM
+			OptLbl.TextSize = 11
+			OptLbl.TextXAlignment = Enum.TextXAlignment.Left
+			OptLbl.ZIndex = 22
+			Opt._lbl = OptLbl
+
+			table.insert(OptionBtns, Opt)
+
+			Opt.MouseEnter:Connect(function()
+				if Selected ~= item then
+					Tw(Opt, {BackgroundColor3 = C.DD_HOV})
+				end
+			end)
 			Opt.MouseLeave:Connect(function()
-				if Selected ~= item then Tw(Opt, {BackgroundColor3 = C.ELEM}) end
+				if Selected ~= item then
+					Tw(Opt, {BackgroundColor3 = C.DD_ITEM})
+				end
 			end)
 			Opt.MouseButton1Click:Connect(function()
 				Selected = item
 				DS.Text = tostring(item)
 				DS.TextColor3 = C.ACCENT
+				UpdateAllBtns(item)
 				CloseDD()
 				local ok, e = pcall(cb, item)
 				if not ok then Err("Dropdown '" .. tostring(name) .. "': " .. tostring(e)) end
@@ -931,11 +1087,13 @@ local function BuildSection(sectionname, PageScroll)
 			Selected = v
 			DS.Text = tostring(v)
 			DS.TextColor3 = C.ACCENT
+			UpdateAllBtns(v)
 		end
 		function ctrl:Get() return Selected end
 		return ctrl
 	end
 
+	-- KEYBIND
 	function SecObj:addKeybind(name, default, callback)
 		local cb = callback or function() end
 		local CK = default or nil
@@ -959,18 +1117,18 @@ local function BuildSection(sectionname, PageScroll)
 		KbBtn.BorderSizePixel = 0
 		KbBtn.AnchorPoint = Vector2.new(1, 0.5)
 		KbBtn.Position = UDim2.new(1, -6, 0.5, 0)
-		KbBtn.Size = UDim2.new(0, 64, 0, 18)
+		KbBtn.Size = UDim2.new(0, 64, 0, 16)
 		KbBtn.AutoButtonColor = false
 		KbBtn.Font = Enum.Font.GothamSemibold
 		KbBtn.Text = CK and "[" .. GetKeyName(CK) .. "]" or "[NONE]"
 		KbBtn.TextColor3 = C.DIM
 		KbBtn.TextSize = 9
 		Corner(KbBtn, 4)
-		local kbStroke = MkStroke(KbBtn)
+		local kbStroke = MkStroke(KbBtn, C.BORDER, 1)
 
 		local function ResizeKb()
 			local sz = TextService:GetTextSize(KbBtn.Text, KbBtn.TextSize, KbBtn.Font, Vector2.new(math.huge, math.huge))
-			Tw(KbBtn, {Size = UDim2.new(0, math.max(64, sz.X + 14), 0, 18)}, TI.Key)
+			Tw(KbBtn, {Size = UDim2.new(0, math.max(64, sz.X + 14), 0, 16)}, TI.Key)
 		end
 		KbBtn:GetPropertyChangedSignal("Text"):Connect(ResizeKb)
 		ResizeKb()
@@ -1004,7 +1162,7 @@ local function BuildSection(sectionname, PageScroll)
 			end
 		end)
 		f.MouseEnter:Connect(function() Tw(f, {BackgroundColor3 = C.HOVER}) end)
-		f.MouseLeave:Connect(function() Tw(f, {BackgroundColor3 = C.ELEM}) end)
+		f.MouseLeave:Connect(function() Tw(f, {BackgroundColor3 = C.ELEM})  end)
 
 		local ctrl = {}
 		function ctrl:Set(k)
@@ -1016,6 +1174,7 @@ local function BuildSection(sectionname, PageScroll)
 		return ctrl
 	end
 
+	-- COLOR PICKER
 	function SecObj:addColorPicker(name, default, callback)
 		local cb = callback or function() end
 		local CurColor = default or Color3.fromRGB(255, 255, 255)
@@ -1034,6 +1193,7 @@ local function BuildSection(sectionname, PageScroll)
 		Hdr.BorderSizePixel = 0
 		Hdr.Size = UDim2.new(1, 0, 0, 28)
 		Corner(Hdr, 5)
+		MkStroke(Hdr, C.BORDER, 1)
 
 		MkIcon(Hdr, "palette", UDim2.new(0, 12, 0, 12), 7, 0, C.DIM, 0, 0.5)
 
@@ -1072,18 +1232,18 @@ local function BuildSection(sectionname, PageScroll)
 		Prev.Position = UDim2.new(1, -8, 0.5, 0)
 		Prev.Size = UDim2.new(0, 14, 0, 14)
 		Corner(Prev, 3)
-		MkStroke(Prev)
+		MkStroke(Prev, C.BORDER, 1)
 
 		local Panel = Instance.new("Frame")
 		Panel.Parent = Wrapper
-		Panel.BackgroundColor3 = C.SECT
+		Panel.BackgroundColor3 = C.DD_BG
 		Panel.BorderSizePixel = 0
 		Panel.Position = UDim2.new(0, 0, 0, 30)
 		Panel.Size = UDim2.new(1, 0, 0, 0)
 		Panel.ClipsDescendants = true
 		Panel.Visible = false
 		Corner(Panel, 5)
-		MkStroke(Panel)
+		MkStroke(Panel, C.ACCENT, 1)
 
 		local function Refresh()
 			CurColor = Color3.fromHSV(H, S, V)
@@ -1104,7 +1264,7 @@ local function BuildSection(sectionname, PageScroll)
 			local Row = Instance.new("Frame")
 			Row.Parent = Panel
 			Row.BackgroundTransparency = 1
-			Row.Position = UDim2.new(0, 8, 0, 6 + (i - 1) * 28)
+			Row.Position = UDim2.new(0, 8, 0, 6 + (i-1) * 28)
 			Row.Size = UDim2.new(1, -16, 0, 22)
 
 			local RL = Instance.new("TextLabel")
@@ -1116,15 +1276,14 @@ local function BuildSection(sectionname, PageScroll)
 			RL.TextColor3 = C.ACCENT
 			RL.TextSize = 10
 
-			local RT = Instance.new("TextButton")
+			local RT = Instance.new("Frame")
 			RT.Parent = Row
-			RT.BackgroundColor3 = C.OFF
+			RT.BackgroundColor3 = C.SLIDER
 			RT.BorderSizePixel = 0
 			RT.Position = UDim2.new(0, 20, 0.5, -3)
 			RT.Size = UDim2.new(1, -60, 0, 6)
-			RT.AutoButtonColor = false
-			RT.Text = ""
 			Corner(RT, 3)
+			MkStroke(RT, C.BORDER, 1)
 
 			local RF = Instance.new("Frame")
 			RF.Parent = RT
@@ -1132,6 +1291,17 @@ local function BuildSection(sectionname, PageScroll)
 			RF.BorderSizePixel = 0
 			RF.Size = UDim2.new(ch.g(), 0, 1, 0)
 			Corner(RF, 3)
+
+			-- Knob do color slider
+			local CKnob = Instance.new("ImageLabel")
+			CKnob.Parent = RT
+			CKnob.BackgroundTransparency = 1
+			CKnob.Image = KNOB_TEX
+			CKnob.ImageColor3 = Color3.fromRGB(255, 255, 255)
+			CKnob.Size = UDim2.new(0, 10, 0, 10)
+			CKnob.AnchorPoint = Vector2.new(0.5, 0.5)
+			CKnob.Position = UDim2.new(ch.g(), 0, 0.5, 0)
+			CKnob.ScaleType = Enum.ScaleType.Fit
 
 			local RV = Instance.new("TextLabel")
 			RV.Parent = Row
@@ -1143,12 +1313,21 @@ local function BuildSection(sectionname, PageScroll)
 			RV.TextColor3 = C.DIM
 			RV.TextSize = 9
 
+			local Hit = Instance.new("TextButton")
+			Hit.Parent = Row
+			Hit.BackgroundTransparency = 1
+			Hit.Position = UDim2.new(0, 20, 0, 0)
+			Hit.Size = UDim2.new(1, -60, 1, 0)
+			Hit.Text = ""
+			Hit.ZIndex = 5
+
 			local dr = false
-			RT.MouseButton1Down:Connect(function() dr = true end)
+			Hit.MouseButton1Down:Connect(function() dr = true end)
 			UserInputService.InputChanged:Connect(function(inp)
 				if dr and inp.UserInputType == Enum.UserInputType.MouseMovement then
 					local p = math.clamp((inp.Position.X - RT.AbsolutePosition.X) / RT.AbsoluteSize.X, 0, 1)
 					RF.Size = UDim2.new(p, 0, 1, 0)
+					CKnob.Position = UDim2.new(p, 0, 0.5, 0)
 					RV.Text = tostring(math.floor(p * ch.m))
 					ch.s(p)
 					Refresh()
@@ -1166,16 +1345,16 @@ local function BuildSection(sectionname, PageScroll)
 		HB.Text = ""
 		HB.AutoButtonColor = false
 		HB.MouseEnter:Connect(function() Tw(Hdr, {BackgroundColor3 = C.HOVER}) end)
-		HB.MouseLeave:Connect(function() Tw(Hdr, {BackgroundColor3 = C.ELEM}) end)
+		HB.MouseLeave:Connect(function() Tw(Hdr, {BackgroundColor3 = C.ELEM})  end)
 		HB.MouseButton1Click:Connect(function()
 			Open = not Open
 			if Open then
 				Panel.Visible = true
-				Tw(Panel, {Size = UDim2.new(1, 0, 0, panelH)})
+				Tw(Panel, {Size = UDim2.new(1, 0, 0, panelH)}, TI.Med)
 				Wrapper.Size = UDim2.new(1, 0, 0, 30 + panelH)
 			else
-				Tw(Panel, {Size = UDim2.new(1, 0, 0, 0)})
-				task.delay(0.15, function()
+				Tw(Panel, {Size = UDim2.new(1, 0, 0, 0)}, TI.Med)
+				task.delay(0.18, function()
 					Panel.Visible = false
 					Wrapper.Size = UDim2.new(1, 0, 0, 28)
 				end)
@@ -1196,6 +1375,9 @@ local function BuildSection(sectionname, PageScroll)
 	return SecObj
 end
 
+-- ============================================================
+-- CREATE WINDOW
+-- ============================================================
 function Library:CreateWindow(windowname, windowinfo)
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "ecohub_gui"
@@ -1208,66 +1390,87 @@ function Library:CreateWindow(windowname, windowinfo)
 	Main.Name = "Main"
 	Main.Parent = ScreenGui
 	Main.BackgroundColor3 = C.BG
-	Main.BackgroundTransparency = 0
 	Main.BorderSizePixel = 0
 	Main.Position = UDim2.new(0.25, 0, 0.25, 0)
-	Main.Size = UDim2.new(0, 550, 0, 350)
+	Main.Size = UDim2.new(0, 520, 0, 340)
 	Main.ClipsDescendants = true
 	Corner(Main, 8)
-	MkStroke(Main)
+	MkStroke(Main, C.BORDER, 1)
 
 	local TitleBar = Instance.new("Frame")
 	TitleBar.Parent = Main
 	TitleBar.BackgroundColor3 = C.SIDEBAR
-	TitleBar.BackgroundTransparency = 0
 	TitleBar.BorderSizePixel = 0
 	TitleBar.Size = UDim2.new(1, 0, 0, 32)
-	TitleBar.ZIndex = 2
 	Corner(TitleBar, 8)
 
 	local TitleFix = Instance.new("Frame")
 	TitleFix.Parent = TitleBar
 	TitleFix.BackgroundColor3 = C.SIDEBAR
-	TitleFix.BackgroundTransparency = 0
 	TitleFix.BorderSizePixel = 0
 	TitleFix.Position = UDim2.new(0, 0, 0.5, 0)
 	TitleFix.Size = UDim2.new(1, 0, 0.5, 0)
-	TitleFix.ZIndex = 2
 
-	local TitleDot = Instance.new("ImageLabel")
+	local TitleDot = Instance.new("Frame")
 	TitleDot.Parent = TitleBar
-	TitleDot.BackgroundTransparency = 1
-	TitleDot.Image = "rbxassetid://112537363055720"
-	TitleDot.ImageColor3 = Color3.fromRGB(255, 255, 255)
+	TitleDot.BackgroundColor3 = C.ACCENT
+	TitleDot.BorderSizePixel = 0
 	TitleDot.AnchorPoint = Vector2.new(0, 0.5)
-	TitleDot.Position = UDim2.new(0, 8, 0.5, 0)
-	TitleDot.Size = UDim2.new(0, 18, 0, 18)
-	TitleDot.ScaleType = Enum.ScaleType.Fit
-	TitleDot.ZIndex = 4
+	TitleDot.Position = UDim2.new(0, 10, 0.5, 0)
+	TitleDot.Size = UDim2.new(0, 6, 0, 6)
+	Corner(TitleDot, 3)
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.Parent = TitleBar
 	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.Position = UDim2.new(0, 26, 0, 0)
-	TitleLabel.Size = UDim2.new(0.55, -26, 1, 0)
+	TitleLabel.Position = UDim2.new(0, 22, 0, 0)
+	TitleLabel.Size = UDim2.new(0.55, 0, 1, 0)
 	TitleLabel.Font = Enum.Font.GothamBold
 	TitleLabel.Text = windowname or "ecohub"
 	TitleLabel.TextColor3 = C.TEXT
 	TitleLabel.TextSize = 12
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-	TitleLabel.ZIndex = 3
 
 	local VerLabel = Instance.new("TextLabel")
 	VerLabel.Parent = TitleBar
 	VerLabel.BackgroundTransparency = 1
 	VerLabel.Position = UDim2.new(0, 0, 0, 0)
-	VerLabel.Size = UDim2.new(1, -16, 1, 0)
+	VerLabel.Size = UDim2.new(1, -50, 1, 0)
 	VerLabel.Font = Enum.Font.Gotham
 	VerLabel.Text = windowinfo or "v1.0"
 	VerLabel.TextColor3 = C.DIM
 	VerLabel.TextSize = 10
 	VerLabel.TextXAlignment = Enum.TextXAlignment.Right
-	VerLabel.ZIndex = 3
+
+	local CloseBtn = Instance.new("TextButton")
+	CloseBtn.Parent = TitleBar
+	CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 55, 55)
+	CloseBtn.BorderSizePixel = 0
+	CloseBtn.AnchorPoint = Vector2.new(1, 0.5)
+	CloseBtn.Position = UDim2.new(1, -8, 0.5, 0)
+	CloseBtn.Size = UDim2.new(0, 14, 0, 14)
+	CloseBtn.AutoButtonColor = false
+	CloseBtn.Text = ""
+	Corner(CloseBtn, 7)
+	CloseBtn.MouseEnter:Connect(function() Tw(CloseBtn, {BackgroundColor3 = Color3.fromRGB(255, 70, 70)}) end)
+	CloseBtn.MouseLeave:Connect(function() Tw(CloseBtn, {BackgroundColor3 = Color3.fromRGB(200, 55, 55)}) end)
+	CloseBtn.MouseButton1Click:Connect(function()
+		Tw(Main, {Size = UDim2.new(0, 520, 0, 0), BackgroundTransparency = 1}, TI.Slow)
+		task.delay(0.3, function() ScreenGui:Destroy() end)
+	end)
+
+	local MinBtn = Instance.new("TextButton")
+	MinBtn.Parent = TitleBar
+	MinBtn.BackgroundColor3 = Color3.fromRGB(200, 150, 0)
+	MinBtn.BorderSizePixel = 0
+	MinBtn.AnchorPoint = Vector2.new(1, 0.5)
+	MinBtn.Position = UDim2.new(1, -26, 0.5, 0)
+	MinBtn.Size = UDim2.new(0, 14, 0, 14)
+	MinBtn.AutoButtonColor = false
+	MinBtn.Text = ""
+	Corner(MinBtn, 7)
+	MinBtn.MouseEnter:Connect(function() Tw(MinBtn, {BackgroundColor3 = Color3.fromRGB(255, 190, 0)}) end)
+	MinBtn.MouseLeave:Connect(function() Tw(MinBtn, {BackgroundColor3 = Color3.fromRGB(200, 150, 0)}) end)
 
 	local Body = Instance.new("Frame")
 	Body.Name = "Body"
@@ -1276,27 +1479,20 @@ function Library:CreateWindow(windowname, windowinfo)
 	Body.BorderSizePixel = 0
 	Body.Position = UDim2.new(0, 0, 0, 32)
 	Body.Size = UDim2.new(1, 0, 1, -32)
-	Body.ZIndex = 2
 
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Parent = Body
 	Sidebar.BackgroundColor3 = C.SIDEBAR
-	Sidebar.BackgroundTransparency = 0
 	Sidebar.BorderSizePixel = 0
 	Sidebar.Size = UDim2.new(0, 120, 1, 0)
-	Sidebar.ZIndex = 2
 	Corner(Sidebar, 8)
-
-
 
 	local SidebarFix = Instance.new("Frame")
 	SidebarFix.Parent = Sidebar
 	SidebarFix.BackgroundColor3 = C.SIDEBAR
-	SidebarFix.BackgroundTransparency = 0
 	SidebarFix.BorderSizePixel = 0
 	SidebarFix.Position = UDim2.new(1, -8, 0, 0)
 	SidebarFix.Size = UDim2.new(0, 8, 1, 0)
-	SidebarFix.ZIndex = 2
 
 	local TabScroll = Instance.new("ScrollingFrame")
 	TabScroll.Parent = Sidebar
@@ -1308,7 +1504,6 @@ function Library:CreateWindow(windowname, windowinfo)
 	TabScroll.ScrollBarImageColor3 = C.ACCENT
 	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 	TabScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-	TabScroll.ZIndex = 3
 
 	local TabLayout = Instance.new("UIListLayout")
 	TabLayout.Parent = TabScroll
@@ -1321,14 +1516,13 @@ function Library:CreateWindow(windowname, windowinfo)
 	ContentArea.BorderSizePixel = 0
 	ContentArea.Position = UDim2.new(0, 126, 0, 4)
 	ContentArea.Size = UDim2.new(1, -130, 1, -8)
-	ContentArea.ZIndex = 2
 
 	local dragging, dragStart, startPos, dragInput
 	TitleBar.InputBegan:Connect(function(inp)
 		if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = true
+			dragging  = true
 			dragStart = inp.Position
-			startPos = Main.Position
+			startPos  = Main.Position
 		end
 	end)
 	TitleBar.InputChanged:Connect(function(inp)
@@ -1351,14 +1545,14 @@ function Library:CreateWindow(windowname, windowinfo)
 	end)
 
 	local Minimized = false
-	local FullSize = UDim2.new(0, 550, 0, 350)
-	local MiniSize = UDim2.new(0, 550, 0, 32)
+	local FullSize = UDim2.new(0, 520, 0, 340)
+	local MiniSize = UDim2.new(0, 520, 0, 32)
 
 	local function DoMinimize(toMin)
 		Minimized = toMin
 		if toMin then
 			Tw(Main, {Size = MiniSize}, TI.Slow)
-			task.delay(0.1, function()
+			task.delay(0.12, function()
 				if Minimized then Body.Visible = false end
 			end)
 		else
@@ -1366,6 +1560,10 @@ function Library:CreateWindow(windowname, windowinfo)
 			Tw(Main, {Size = FullSize}, TI.Slow)
 		end
 	end
+
+	MinBtn.MouseButton1Click:Connect(function()
+		DoMinimize(not Minimized)
+	end)
 
 	local ToggleKey = Enum.KeyCode.RightAlt
 	UserInputService.InputBegan:Connect(function(inp, gp)
@@ -1377,21 +1575,17 @@ function Library:CreateWindow(windowname, windowinfo)
 				Main.Size = MiniSize
 				Tw(Main, {Size = FullSize}, TI.Slow)
 			else
-				if Minimized then
-					DoMinimize(false)
-				else
-					DoMinimize(true)
-				end
+				DoMinimize(not Minimized)
 			end
 		end
 	end)
 
-	local Pages = {}
+	local Pages    = {}
 	local ActiveTab = nil
-	local Window = {}
+	local Window   = {}
 
 	function Window:addPage(pagename, iconName)
-		local hasIcon = iconName ~= nil and GetIconId(iconName) ~= nil
+		local hasIcon  = iconName ~= nil and GetIconId(iconName) ~= nil
 		local iconSize = 14
 
 		local Tab = Instance.new("TextButton")
@@ -1402,10 +1596,6 @@ function Library:CreateWindow(windowname, windowinfo)
 		Tab.Size = UDim2.new(1, 0, 0, 28)
 		Tab.AutoButtonColor = false
 		Tab.Text = ""
-		Tab.Font = Enum.Font.GothamSemibold
-		Tab.TextColor3 = C.DIM
-		Tab.TextSize = 11
-		Tab.ZIndex = 3
 		Corner(Tab, 5)
 
 		local TabIcon = nil
@@ -1418,7 +1608,6 @@ function Library:CreateWindow(windowname, windowinfo)
 			TabIcon.Position = UDim2.new(0, 6, 0.5, 0)
 			TabIcon.AnchorPoint = Vector2.new(0, 0.5)
 			TabIcon.ScaleType = Enum.ScaleType.Fit
-			TabIcon.ZIndex = 4
 			TabIcon.Parent = Tab
 		end
 
@@ -1435,18 +1624,17 @@ function Library:CreateWindow(windowname, windowinfo)
 		TabLbl.TextColor3 = C.DIM
 		TabLbl.TextSize = 11
 		TabLbl.TextXAlignment = Enum.TextXAlignment.Left
-		TabLbl.ZIndex = 4
 		TabLbl.Parent = Tab
 
+		-- Underline accent animado na tab ativa
 		local Underline = Instance.new("Frame")
 		Underline.Parent = Tab
 		Underline.BackgroundColor3 = C.ACCENT
 		Underline.BorderSizePixel = 0
 		Underline.AnchorPoint = Vector2.new(0.5, 1)
 		Underline.Position = UDim2.new(0.5, 0, 1, -1)
-		Underline.Size = UDim2.new(0, 0, 0, 1)
+		Underline.Size = UDim2.new(0, 0, 0, 2)
 		Underline.Visible = false
-		Underline.ZIndex = 4
 		Corner(Underline, 1)
 
 		local PageFrame = Instance.new("Frame")
@@ -1455,7 +1643,6 @@ function Library:CreateWindow(windowname, windowinfo)
 		PageFrame.BorderSizePixel = 0
 		PageFrame.Size = UDim2.new(1, 0, 1, 0)
 		PageFrame.Visible = false
-		PageFrame.ZIndex = 2
 
 		local PageScroll = Instance.new("ScrollingFrame")
 		PageScroll.Parent = PageFrame
@@ -1466,7 +1653,6 @@ function Library:CreateWindow(windowname, windowinfo)
 		PageScroll.ScrollBarImageColor3 = C.ACCENT
 		PageScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 		PageScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-		PageScroll.ZIndex = 2
 
 		local PL = Instance.new("UIListLayout")
 		PL.Parent = PageScroll
@@ -1474,9 +1660,9 @@ function Library:CreateWindow(windowname, windowinfo)
 		PL.Padding = UDim.new(0, 5)
 		local PP = Instance.new("UIPadding")
 		PP.Parent = PageScroll
-		PP.PaddingTop = UDim.new(0, 2)
+		PP.PaddingTop    = UDim.new(0, 2)
 		PP.PaddingBottom = UDim.new(0, 6)
-		PP.PaddingRight = UDim.new(0, 2)
+		PP.PaddingRight  = UDim.new(0, 2)
 
 		local function SetTabColor(col)
 			TabLbl.TextColor3 = col
@@ -1484,10 +1670,10 @@ function Library:CreateWindow(windowname, windowinfo)
 		end
 
 		table.insert(Pages, {
-			Tab = Tab,
-			Page = PageFrame,
+			Tab       = Tab,
+			Page      = PageFrame,
 			Underline = Underline,
-			SetColor = SetTabColor,
+			SetColor  = SetTabColor,
 		})
 
 		local function SelectTab()
@@ -1503,8 +1689,8 @@ function Library:CreateWindow(windowname, windowinfo)
 			Tw(Tab, {BackgroundTransparency = 0, BackgroundColor3 = C.ACTIVE}, TI.Fast)
 			SetTabColor(C.TEXT)
 			Underline.Visible = true
-			Underline.Size = UDim2.new(0, 0, 0, 1)
-			Tw(Underline, {Size = UDim2.new(0.8, 0, 0, 1)}, TI.Slow)
+			Underline.Size = UDim2.new(0, 0, 0, 2)
+			Tw(Underline, {Size = UDim2.new(0.8, 0, 0, 2)}, TI.Slow)
 			PageScroll.CanvasPosition = Vector2.new(0, 0)
 			ActiveTab = Tab
 		end
