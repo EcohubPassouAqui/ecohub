@@ -2,136 +2,92 @@ local ecohub = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ecohub
 
 local UI = ecohub:CreateWindow("ecohub", "v1.0")
 
--- ══════════════════════════════════════════
---              PAGINA: Home
--- ══════════════════════════════════════════
 local Home = UI:addPage("Home", "home")
 local General = Home:addSection("General")
 
--- Button: clicavel, executa funcao ao apertar
-General:addButton("Clique aqui", function()
-    print("Botao clicado!")
+General:addButton("Click here", function()
+    print("Button clicked!")
 end)
 
--- Toggle: liga e desliga, salva estado true/false
--- addToggle tem keybind, nil = sem tecla padrao
-local myToggle = General:addToggle("Ativar algo", false, function(state)
-    print("Toggle estado:", state)
-end, nil)
-
--- Toggle Simples: igual ao toggle porem sem keybind
-local myToggleSimple = General:addToggleSimple("Toggle Simples", false, function(state)
-    print("Toggle simples estado:", state)
+local myCheck = General:addCheck("Enable something", false, function(state)
+    print("Check state:", state)
 end)
 
--- Slider: valor numerico entre min e max
--- addSlider(nome, min, max, default, callback)
-local mySlider = General:addSlider("Velocidade", 0, 100, 50, function(value)
-    print("Slider valor:", value)
+local mySlider = General:addSlider("Speed", 0, 100, 50, function(value)
+    print("Slider value:", value)
 end)
 
--- TextBox: caixa de texto, retorna string ao perder foco
--- addTextBox(nome, placeholder, callback)
-local myTextBox = General:addTextBox("Nome", "Digite aqui...", function(text)
-    print("TextBox texto:", text)
+local myTextBox = General:addTextBox("Name", "Type here...", function(text)
+    print("TextBox text:", text)
 end)
 
--- Dropdown: lista de opcoes, retorna item selecionado
--- addDropdown(nome, lista, callback)
-local myDropdown = General:addDropdown("Modo", {"Opcao 1", "Opcao 2", "Opcao 3"}, function(selected)
-    print("Dropdown selecionado:", selected)
+local myDropdown = General:addDropdown("Mode", {"Option 1", "Option 2", "Option 3"}, function(selected)
+    print("Dropdown selected:", selected)
 end)
 
--- Keybind: define uma tecla, executa callback ao pressionar
--- addKeybind(nome, tecla padrao, callback)
-local myKeybind = General:addKeybind("Tecla acao", Enum.KeyCode.F, function(key)
-    print("Keybind pressionada:", key)
+local myKeybind = General:addKeybind("Action key", Enum.KeyCode.F, function(key)
+    print("Keybind pressed:", key)
 end)
 
--- ColorPicker: seletor de cor RGB
--- addColorPicker(nome, cor padrao, callback)
-local myColor = General:addColorPicker("Cor do ESP", Color3.fromRGB(255, 0, 0), function(color)
-    print("Cor selecionada:", color)
+local myColor = General:addColorPicker("ESP Color", Color3.fromRGB(255, 0, 0), function(color)
+    print("Color selected:", color)
 end)
 
--- Separator: linha divisoria visual, sem parametros
 General:addSeparator()
 
--- ══════════════════════════════════════════
---           PAGINA: Combat
--- ══════════════════════════════════════════
 local Combat = UI:addPage("Combat", "sword")
-local CombatSec = Combat:addSection("Configuracoes de Combate")
+local CombatSec = Combat:addSection("Combat Settings")
 
--- Toggle com keybind definida como nil
-local aimbotToggle = CombatSec:addToggle("Aimbot", false, function(state)
-    print("Aimbot estado:", state)
-end, nil)
+local aimbotCheck = CombatSec:addCheck("Aimbot", false, function(state)
+    print("Aimbot state:", state)
+end)
 
--- Slider de FOV entre 10 e 500
 local fovSlider = CombatSec:addSlider("FOV", 10, 500, 100, function(value)
-    print("FOV valor:", value)
+    print("FOV value:", value)
 end)
 
--- Dropdown de hitbox
 local hitboxDropdown = CombatSec:addDropdown("Hitbox", {"Head", "Body", "Nearest"}, function(sel)
-    print("Hitbox selecionada:", sel)
+    print("Hitbox selected:", sel)
 end)
 
--- ══════════════════════════════════════════
---           PAGINA: Visual
--- ══════════════════════════════════════════
 local Visual = UI:addPage("Visual", "eye")
-local VisualSec = Visual:addSection("Configuracoes Visuais")
+local VisualSec = Visual:addSection("Visual Settings")
 
--- Toggle simples de ESP
-local espToggle = VisualSec:addToggleSimple("ESP Jogadores", false, function(state)
-    print("ESP estado:", state)
+local espCheck = VisualSec:addCheck("Player ESP", false, function(state)
+    print("ESP state:", state)
 end)
 
--- ColorPicker para cor do ESP
-local espColor = VisualSec:addColorPicker("Cor ESP", Color3.fromRGB(255, 255, 255), function(color)
-    print("ESP cor:", color)
+local espColor = VisualSec:addColorPicker("ESP Color", Color3.fromRGB(255, 255, 255), function(color)
+    print("ESP color:", color)
 end)
 
--- Slider de transparencia entre 0 e 100
-VisualSec:addSlider("Transparencia", 0, 100, 0, function(value)
-    print("Transparencia valor:", value)
+VisualSec:addSlider("Transparency", 0, 100, 0, function(value)
+    print("Transparency value:", value)
 end)
 
--- ══════════════════════════════════════════
---           PAGINA: Misc
--- ══════════════════════════════════════════
 local Misc = UI:addPage("Misc", "settings")
-local MiscSec = Misc:addSection("Diversos")
+local MiscSec = Misc:addSection("Miscellaneous")
 
--- Button simples de teleporte
 MiscSec:addButton("Teleport Lobby", function()
-    print("Teleportando...")
+    print("Teleporting...")
 end)
 
--- Keybind para abrir e fechar GUI
 MiscSec:addKeybind("Toggle GUI", Enum.KeyCode.RightAlt, function()
     print("GUI toggled via keybind")
 end)
 
--- TextBox para tag customizada
-MiscSec:addTextBox("Custom Tag", "Seu texto...", function(text)
-    print("Tag digitada:", text)
+MiscSec:addTextBox("Custom Tag", "Your text...", function(text)
+    print("Tag typed:", text)
 end)
 
--- Separador visual
 MiscSec:addSeparator()
 
--- Button que reseta todos os controles para o valor padrao
--- usando os metodos :Set() de cada controle
-MiscSec:addButton("Resetar Configuracoes", function()
-    myToggle:Set(false)
-    myToggleSimple:Set(false)
+MiscSec:addButton("Reset Settings", function()
+    myCheck:Set(false)
     mySlider:Set(50)
     myDropdown:Set(nil)
     myTextBox:Set("")
     myColor:Set(Color3.fromRGB(255, 0, 0))
     myKeybind:Set(Enum.KeyCode.F)
-    print("Tudo resetado para o padrao!")
+    print("Everything reset to default!")
 end)
