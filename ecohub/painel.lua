@@ -365,8 +365,8 @@ local function MakeCheckbox(parent, On)
 	ChkFill.BackgroundTransparency = On and 0 or 1
 	ChkFill.BorderSizePixel = 0
 	ChkFill.Position = UDim2.new(0.5, 0, 0.5, 0)
-	ChkFill.Size = On and UDim2.new(0, 10, 0, 10) or UDim2.new(0, 0, 0, 0)
-	Corner(ChkFill, 2)
+	ChkFill.Size = On and UDim2.new(1, 0, 1, 0) or UDim2.new(0, 0, 0, 0)
+	Corner(ChkFill, 3)
 
 	local ChkImg = MkCheckIcon(ChkBox)
 	ChkImg.ImageTransparency = On and 0 or 1
@@ -536,7 +536,7 @@ local function BuildSection(sectionname, PageScroll)
 		local function UpdateVisuals()
 			Tw(ChkFill, {
 				BackgroundTransparency = On and 0 or 1,
-				Size = On and UDim2.new(0, 10, 0, 10) or UDim2.new(0, 0, 0, 0),
+				Size = On and UDim2.new(1, 0, 1, 0) or UDim2.new(0, 0, 0, 0),
 			}, TI.Fast)
 			Tw(ChkImg, {ImageTransparency = On and 0 or 1}, TI.Fast)
 			chkStroke.Color = On and C.CHECK or C.BORDER
@@ -803,15 +803,15 @@ local function BuildSection(sectionname, PageScroll)
 		DS.TextXAlignment = Enum.TextXAlignment.Right
 		DS.ZIndex = 6
 
-		local DA = Instance.new("TextLabel")
+		local DA = Instance.new("ImageLabel")
 		DA.Parent = Hdr
 		DA.BackgroundTransparency = 1
-		DA.Position = UDim2.new(1, -22, 0, 0)
-		DA.Size = UDim2.new(0, 20, 1, 0)
-		DA.Font = Enum.Font.GothamBold
-		DA.Text = "v"
-		DA.TextColor3 = C.ACCENT
-		DA.TextSize = 10
+		DA.Image = "rbxassetid://10709790948"
+		DA.ImageColor3 = C.ACCENT
+		DA.Size = UDim2.new(0, 14, 0, 14)
+		DA.AnchorPoint = Vector2.new(1, 0.5)
+		DA.Position = UDim2.new(1, -7, 0.5, 0)
+		DA.ScaleType = Enum.ScaleType.Fit
 		DA.ZIndex = 6
 
 		local DL = Instance.new("Frame")
@@ -851,7 +851,7 @@ local function BuildSection(sectionname, PageScroll)
 
 		local function CloseDD()
 			Open = false
-			DA.Text = "v"
+			Tw(DA, {Rotation = 0}, TI.Fast)
 			Tw(DL, {Size = UDim2.new(1, 0, 0, 0)})
 			task.delay(0.15, function()
 				DL.Visible = false
@@ -860,7 +860,7 @@ local function BuildSection(sectionname, PageScroll)
 		end
 		local function OpenDD()
 			Open = true
-			DA.Text = "^"
+			Tw(DA, {Rotation = 180}, TI.Fast)
 			DL.Visible = true
 			Tw(DL, {Size = UDim2.new(1, 0, 0, tH)})
 			Wrapper.Size = UDim2.new(1, 0, 0, 30 + tH)
@@ -1101,7 +1101,7 @@ local function BuildSection(sectionname, PageScroll)
 			RT.BackgroundColor3 = C.OFF
 			RT.BorderSizePixel = 0
 			RT.Position = UDim2.new(0, 20, 0.5, -3)
-			RT.Size = UDim2.new(1, -60, 0, 6)
+			RT.Size = UDim2.new(1, -60, 0, 7)
 			RT.AutoButtonColor = false
 			RT.Text = ""
 			Corner(RT, 3)
@@ -1209,19 +1209,19 @@ function Library:CreateWindow(windowname, windowinfo)
 	TitleFix.Position = UDim2.new(0, 0, 0.5, 0)
 	TitleFix.Size = UDim2.new(1, 0, 0.5, 0)
 
-	local TitleDot = Instance.new("Frame")
+	local TitleDot = Instance.new("ImageLabel")
 	TitleDot.Parent = TitleBar
-	TitleDot.BackgroundColor3 = C.ACCENT
-	TitleDot.BorderSizePixel = 0
+	TitleDot.BackgroundTransparency = 1
+	TitleDot.Image = "rbxassetid://112537363055720"
+	TitleDot.Size = UDim2.new(0, 8, 0, 8)
 	TitleDot.AnchorPoint = Vector2.new(0, 0.5)
 	TitleDot.Position = UDim2.new(0, 10, 0.5, 0)
-	TitleDot.Size = UDim2.new(0, 6, 0, 6)
-	Corner(TitleDot, 3)
+	TitleDot.ScaleType = Enum.ScaleType.Fit
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.Parent = TitleBar
 	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.Position = UDim2.new(0, 22, 0, 0)
+	TitleLabel.Position = UDim2.new(0, 24, 0, 0)
 	TitleLabel.Size = UDim2.new(0.55, 0, 1, 0)
 	TitleLabel.Font = Enum.Font.GothamBold
 	TitleLabel.Text = windowname or "ecohub"
@@ -1233,44 +1233,12 @@ function Library:CreateWindow(windowname, windowinfo)
 	VerLabel.Parent = TitleBar
 	VerLabel.BackgroundTransparency = 1
 	VerLabel.Position = UDim2.new(0, 0, 0, 0)
-	VerLabel.Size = UDim2.new(1, -50, 1, 0)
+	VerLabel.Size = UDim2.new(1, -16, 1, 0)
 	VerLabel.Font = Enum.Font.Gotham
 	VerLabel.Text = windowinfo or "v1.0"
 	VerLabel.TextColor3 = C.DIM
 	VerLabel.TextSize = 10
 	VerLabel.TextXAlignment = Enum.TextXAlignment.Right
-
-	local CloseBtn = Instance.new("TextButton")
-	CloseBtn.Parent = TitleBar
-	CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 55, 55)
-	CloseBtn.BorderSizePixel = 0
-	CloseBtn.AnchorPoint = Vector2.new(1, 0.5)
-	CloseBtn.Position = UDim2.new(1, -8, 0.5, 0)
-	CloseBtn.Size = UDim2.new(0, 14, 0, 14)
-	CloseBtn.AutoButtonColor = false
-	CloseBtn.Text = ""
-	Corner(CloseBtn, 7)
-	CloseBtn.MouseEnter:Connect(function() Tw(CloseBtn, {BackgroundColor3 = Color3.fromRGB(255, 70, 70)}) end)
-	CloseBtn.MouseLeave:Connect(function() Tw(CloseBtn, {BackgroundColor3 = Color3.fromRGB(200, 55, 55)}) end)
-	CloseBtn.MouseButton1Click:Connect(function()
-		Tw(Main, {Size = UDim2.new(0, 520, 0, 0), BackgroundTransparency = 1}, TI.Slow)
-		task.delay(0.3, function()
-			ScreenGui:Destroy()
-		end)
-	end)
-
-	local MinBtn = Instance.new("TextButton")
-	MinBtn.Parent = TitleBar
-	MinBtn.BackgroundColor3 = Color3.fromRGB(200, 150, 0)
-	MinBtn.BorderSizePixel = 0
-	MinBtn.AnchorPoint = Vector2.new(1, 0.5)
-	MinBtn.Position = UDim2.new(1, -26, 0.5, 0)
-	MinBtn.Size = UDim2.new(0, 14, 0, 14)
-	MinBtn.AutoButtonColor = false
-	MinBtn.Text = ""
-	Corner(MinBtn, 7)
-	MinBtn.MouseEnter:Connect(function() Tw(MinBtn, {BackgroundColor3 = Color3.fromRGB(255, 190, 0)}) end)
-	MinBtn.MouseLeave:Connect(function() Tw(MinBtn, {BackgroundColor3 = Color3.fromRGB(200, 150, 0)}) end)
 
 	local Body = Instance.new("Frame")
 	Body.Name = "Body"
@@ -1361,11 +1329,7 @@ function Library:CreateWindow(windowname, windowinfo)
 		end
 	end
 
-	MinBtn.MouseButton1Click:Connect(function()
-		DoMinimize(not Minimized)
-	end)
-
-	local ToggleKey = Enum.KeyCode.RightAlt
+	local ToggleKey = Enum.KeyCode.LeftAlt
 	UserInputService.InputBegan:Connect(function(inp, gp)
 		if not gp and inp.KeyCode == ToggleKey then
 			if not Main.Visible then
@@ -1375,11 +1339,7 @@ function Library:CreateWindow(windowname, windowinfo)
 				Main.Size = MiniSize
 				Tw(Main, {Size = FullSize}, TI.Slow)
 			else
-				if Minimized then
-					DoMinimize(false)
-				else
-					DoMinimize(true)
-				end
+				DoMinimize(not Minimized)
 			end
 		end
 	end)
