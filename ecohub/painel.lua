@@ -1437,12 +1437,29 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	SidebarFix.Position = UDim2.new(1, -8, 0, 0)
 	SidebarFix.Size = UDim2.new(0, 8, 1, 0)
 
+	local SidebarBrandTop = Instance.new("ImageLabel")
+	SidebarBrandTop.Parent = Sidebar
+	SidebarBrandTop.BackgroundTransparency = 1
+	SidebarBrandTop.Image = BRAND_IMAGE
+	SidebarBrandTop.Size = UDim2.new(0, 36, 0, 36)
+	SidebarBrandTop.AnchorPoint = Vector2.new(0.5, 0)
+	SidebarBrandTop.Position = UDim2.new(0.5, 0, 0, 5)
+	SidebarBrandTop.ScaleType = Enum.ScaleType.Fit
+	SidebarBrandTop.ImageTransparency = 0
+
+	local SidebarSepTop = Instance.new("Frame")
+	SidebarSepTop.Parent = Sidebar
+	SidebarSepTop.BackgroundColor3 = C.SEP
+	SidebarSepTop.BorderSizePixel = 0
+	SidebarSepTop.Position = UDim2.new(0, 6, 0, 45)
+	SidebarSepTop.Size = UDim2.new(1, -12, 0, 1)
+
 	local TabScroll = Instance.new("ScrollingFrame")
 	TabScroll.Parent = Sidebar
 	TabScroll.BackgroundTransparency = 1
 	TabScroll.BorderSizePixel = 0
-	TabScroll.Position = UDim2.new(0, 6, 0, 6)
-	TabScroll.Size = UDim2.new(1, -12, 1, -100)
+	TabScroll.Position = UDim2.new(0, 6, 0, 50)
+	TabScroll.Size = UDim2.new(1, -12, 1, -150)
 	TabScroll.ScrollBarThickness = 2
 	TabScroll.ScrollBarImageColor3 = C.ACCENT
 	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -1458,7 +1475,7 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	SidebarSep.BackgroundColor3 = C.SEP
 	SidebarSep.BorderSizePixel = 0
 	SidebarSep.AnchorPoint = Vector2.new(0, 1)
-	SidebarSep.Position = UDim2.new(0, 6, 1, -70)
+	SidebarSep.Position = UDim2.new(0, 6, 1, -38)
 	SidebarSep.Size = UDim2.new(1, -12, 0, 1)
 
 	local SettingsTabBtn = Instance.new("TextButton")
@@ -1467,7 +1484,7 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	SettingsTabBtn.BackgroundTransparency = 1
 	SettingsTabBtn.BorderSizePixel = 0
 	SettingsTabBtn.AnchorPoint = Vector2.new(0, 1)
-	SettingsTabBtn.Position = UDim2.new(0, 6, 1, -38)
+	SettingsTabBtn.Position = UDim2.new(0, 6, 1, -6)
 	SettingsTabBtn.Size = UDim2.new(1, -12, 0, 28)
 	SettingsTabBtn.AutoButtonColor = false
 	SettingsTabBtn.Text = ""
@@ -1508,9 +1525,9 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	SidebarBrandImg.Parent = Sidebar
 	SidebarBrandImg.BackgroundTransparency = 1
 	SidebarBrandImg.Image = BRAND_IMAGE
-	SidebarBrandImg.Size = UDim2.new(0, 54, 0, 54)
+	SidebarBrandImg.Size = UDim2.new(0, 44, 0, 44)
 	SidebarBrandImg.AnchorPoint = Vector2.new(0.5, 1)
-	SidebarBrandImg.Position = UDim2.new(0.5, 0, 1, -72)
+	SidebarBrandImg.Position = UDim2.new(0.5, 0, 1, -42)
 	SidebarBrandImg.ScaleType = Enum.ScaleType.Fit
 	SidebarBrandImg.ImageTransparency = 0.15
 
