@@ -1075,11 +1075,9 @@ local function BuildSection(sectionname, PageScroll)
 		f.Size = UDim2.new(1, 0, 0, 1)
 	end
 
-	local function ToggleCore(togglename, default, callback, withBind, defaultKey, iconName)
-		local cb       = callback or function() end
-		local On       = (default == true)
-		local CKey     = withBind and (defaultKey or nil) or nil
-		local Listening = false
+	function SecObj:addCheck(checkname, default, callback, iconName)
+		local cb    = callback or function() end
+		local On    = (default == true)
 
 		local f = Base(28)
 
@@ -1091,51 +1089,16 @@ local function BuildSection(sectionname, PageScroll)
 			if ic then iconOff = 17 end
 		end
 
-		local rightPad = withBind and 66 or 10
 		local Lbl = Instance.new("TextLabel")
 		Lbl.Parent = f
 		Lbl.BackgroundTransparency = 1
 		Lbl.Position = UDim2.new(0, 28 + iconOff, 0, 0)
-		Lbl.Size = UDim2.new(1, -(28 + iconOff + rightPad), 1, 0)
+		Lbl.Size = UDim2.new(1, -(28 + iconOff + 10), 1, 0)
 		Lbl.Font = Enum.Font.GothamSemibold
-		Lbl.Text = togglename or "Toggle"
+		Lbl.Text = checkname or "Check"
 		Lbl.TextColor3 = On and C.TEXT or C.DIM
 		Lbl.TextSize = 11
 		Lbl.TextXAlignment = Enum.TextXAlignment.Left
-
-		local KbBtn, kbStroke
-		if withBind then
-			KbBtn = Instance.new("TextButton")
-			KbBtn.Parent = f
-			KbBtn.BackgroundColor3 = C.KEYBG
-			KbBtn.BorderSizePixel = 0
-			KbBtn.AnchorPoint = Vector2.new(1, 0.5)
-			KbBtn.Position = UDim2.new(1, -6, 0.5, 0)
-			KbBtn.Size = UDim2.new(0, 54, 0, 18)
-			KbBtn.AutoButtonColor = false
-			KbBtn.Font = Enum.Font.GothamSemibold
-			KbBtn.Text = CKey and "[" .. GetKeyName(CKey) .. "]" or "[ -- ]"
-			KbBtn.TextColor3 = C.DIM
-			KbBtn.TextSize = 9
-			Corner(KbBtn, 4)
-			kbStroke = MkStroke(KbBtn, C.BORDER)
-
-			local function ResizeKb()
-				local sz = TextService:GetTextSize(KbBtn.Text, KbBtn.TextSize, KbBtn.Font, Vector2.new(math.huge, math.huge))
-				Tw(KbBtn, {Size = UDim2.new(0, math.max(54, sz.X + 14), 0, 18)}, TI.Key)
-			end
-			KbBtn:GetPropertyChangedSignal("Text"):Connect(ResizeKb)
-			ResizeKb()
-
-			KbBtn.MouseButton1Click:Connect(function()
-				if Listening then return end
-				Listening = true
-				KbBtn.Text = "[ ... ]"
-				KbBtn.TextColor3 = C.ACCENT
-				kbStroke.Color = C.ACCENT
-				ResizeKb()
-			end)
-		end
 
 		local function UpdateVisuals()
 			Tw(ChkFill, {
@@ -1147,11 +1110,10 @@ local function BuildSection(sectionname, PageScroll)
 			Tw(Lbl, {TextColor3 = On and C.TEXT or C.DIM}, TI.Fast)
 		end
 
-		local HitW = withBind and -66 or 0
 		local HitBtn = Instance.new("TextButton")
 		HitBtn.Parent = f
 		HitBtn.BackgroundTransparency = 1
-		HitBtn.Size = UDim2.new(1, HitW, 1, 0)
+		HitBtn.Size = UDim2.new(1, 0, 1, 0)
 		HitBtn.AutoButtonColor = false
 		HitBtn.Text = ""
 		HitBtn.ZIndex = 5
@@ -1159,43 +1121,13 @@ local function BuildSection(sectionname, PageScroll)
 		HitBtn.MouseEnter:Connect(function() Tw(f, {BackgroundColor3 = C.HOVER}) end)
 		HitBtn.MouseLeave:Connect(function() Tw(f, {BackgroundColor3 = C.ELEM}) end)
 		HitBtn.MouseButton1Click:Connect(function()
-			if Listening then return end
 			On = not On
 			UpdateVisuals()
 			local ok, e = pcall(cb, On)
 			if not ok then
-				print("[ecohub ERROR] Toggle '" .. tostring(togglename) .. "': " .. tostring(e))
+				print("[ecohub ERROR] Check '" .. tostring(checkname) .. "': " .. tostring(e))
 			end
 		end)
-
-		if withBind then
-			UserInputService.InputBegan:Connect(function(inp, gp)
-				if inp.UserInputType ~= Enum.UserInputType.Keyboard then return end
-				if Listening then
-					Listening = false
-					if inp.KeyCode == Enum.KeyCode.Escape then
-						CKey = nil
-						KbBtn.Text = "[ -- ]"
-					else
-						CKey = inp.KeyCode
-						KbBtn.Text = "[" .. GetKeyName(inp.KeyCode) .. "]"
-					end
-					KbBtn.TextColor3 = C.DIM
-					kbStroke.Color = C.BORDER
-					local sz = TextService:GetTextSize(KbBtn.Text, KbBtn.TextSize, KbBtn.Font, Vector2.new(math.huge, math.huge))
-					Tw(KbBtn, {Size = UDim2.new(0, math.max(54, sz.X + 14), 0, 18)}, TI.Key)
-					return
-				end
-				if not gp and CKey and inp.KeyCode == CKey then
-					On = not On
-					UpdateVisuals()
-					local ok, e = pcall(cb, On)
-					if not ok then
-						print("[ecohub ERROR] Toggle keybind '" .. tostring(togglename) .. "': " .. tostring(e))
-					end
-				end
-			end)
-		end
 
 		UpdateVisuals()
 
@@ -1205,29 +1137,12 @@ local function BuildSection(sectionname, PageScroll)
 			UpdateVisuals()
 			local ok, e = pcall(cb, On)
 			if not ok then
-				print("[ecohub ERROR] Toggle:Set: " .. tostring(e))
+				print("[ecohub ERROR] Check:Set: " .. tostring(e))
 			end
 		end
 		function ctrl:Get() return On end
-		if withBind then
-			function ctrl:SetKey(kc)
-				CKey = kc
-				KbBtn.Text = kc and "[" .. GetKeyName(kc) .. "]" or "[ -- ]"
-				local sz = TextService:GetTextSize(KbBtn.Text, KbBtn.TextSize, KbBtn.Font, Vector2.new(math.huge, math.huge))
-				Tw(KbBtn, {Size = UDim2.new(0, math.max(54, sz.X + 14), 0, 18)}, TI.Key)
-			end
-			function ctrl:GetKey() return CKey end
-		end
-		RegOption(ctrl, "Toggle")
+		RegOption(ctrl, "Check")
 		return ctrl
-	end
-
-	function SecObj:addToggle(togglename, default, callback, defaultKey, iconName)
-		return ToggleCore(togglename, default, callback, true, defaultKey, iconName)
-	end
-
-	function SecObj:addToggleSimple(togglename, default, callback, iconName)
-		return ToggleCore(togglename, default, callback, false, nil, iconName)
 	end
 
 	function SecObj:addSlider(name, mn, mx, def, callback, iconName)
@@ -1905,7 +1820,7 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 
 	local function SaveConfig(name)
 		if not name or name:gsub(" ", "") == "" then
-			return false, "nome invalido"
+			return false, "invalid name"
 		end
 		local data = { objects = {} }
 		local opts = Library.Options or {}
@@ -1913,8 +1828,8 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 			if SaveIgnore[idx] then continue end
 			local t = opt.Type
 			local v = opt:Get()
-			if t == "Toggle" then
-				table.insert(data.objects, { type = "Toggle", idx = idx, value = v })
+			if t == "Check" then
+				table.insert(data.objects, { type = "Check", idx = idx, value = v })
 			elseif t == "Slider" then
 				table.insert(data.objects, { type = "Slider", idx = idx, value = v })
 			elseif t == "Dropdown" then
@@ -1932,25 +1847,25 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 			end
 		end
 		local ok2, encoded = pcall(function() return HttpService:JSONEncode(data) end)
-		if not ok2 then return false, "encode falhou" end
+		if not ok2 then return false, "encode failed" end
 		local ok3, err3 = pcall(writefile, ConfigSettingsFolder .. "/" .. name .. ".json", encoded)
 		if not ok3 then return false, "writefile: " .. tostring(err3) end
 		return true
 	end
 
 	local function LoadConfig(name)
-		if not name then return false, "nome invalido" end
+		if not name then return false, "invalid name" end
 		local path = ConfigSettingsFolder .. "/" .. name .. ".json"
 		local ok, content = pcall(readfile, path)
-		if not ok then return false, "arquivo nao encontrado" end
+		if not ok then return false, "file not found" end
 		local ok2, decoded = pcall(function() return HttpService:JSONDecode(content) end)
-		if not ok2 then return false, "decode falhou" end
+		if not ok2 then return false, "decode failed" end
 		for _, obj in ipairs(decoded.objects or {}) do
 			task.spawn(function()
 				local opts = Library.Options or {}
 				local opt = opts[obj.idx]
 				if not opt then return end
-				if obj.type == "Toggle" then
+				if obj.type == "Check" then
 					opt:Set(obj.value == true or obj.value == "true")
 				elseif obj.type == "Slider" then
 					opt:Set(tonumber(obj.value) or 0)
@@ -2180,17 +2095,17 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 	SPP.PaddingBottom = UDim.new(0, 6)
 	SPP.PaddingRight = UDim.new(0, 2)
 
-	local cfgSection = BuildSection("Configuracoes", SettingsScroll)
+	local cfgSection = BuildSection("Configs", SettingsScroll)
 
-	local cfgNameCtrl = cfgSection:addTextBox("Nome do config", "minha_config", nil)
-	local cfgListCtrl = cfgSection:addDropdown("Configs salvos", GetConfigList(), nil)
+	local cfgNameCtrl = cfgSection:addTextBox("Config name", "my_config", nil)
+	local cfgListCtrl = cfgSection:addDropdown("Saved configs", GetConfigList(), nil)
 
-	cfgSection:addButton("Salvar config", function()
+	cfgSection:addButton("Save config", function()
 		local name = cfgNameCtrl:Get()
 		if not name or name:gsub(" ", "") == "" then return end
 		local ok, err = SaveConfig(name)
 		if not ok then
-			print("[ecohub ERROR] Salvar: " .. tostring(err))
+			print("[ecohub ERROR] Save: " .. tostring(err))
 		else
 			local nl = GetConfigList()
 			cfgListCtrl:SetList(nl)
@@ -2198,25 +2113,25 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 		end
 	end, "save")
 
-	cfgSection:addButton("Carregar config", function()
+	cfgSection:addButton("Load config", function()
 		local name = cfgListCtrl:Get()
 		if not name then return end
 		local ok, err = LoadConfig(name)
 		if not ok then
-			print("[ecohub ERROR] Carregar: " .. tostring(err))
+			print("[ecohub ERROR] Load: " .. tostring(err))
 		end
 	end, "download")
 
-	cfgSection:addButton("Sobrescrever config", function()
+	cfgSection:addButton("Overwrite config", function()
 		local name = cfgListCtrl:Get()
 		if not name then return end
 		local ok, err = SaveConfig(name)
 		if not ok then
-			print("[ecohub ERROR] Sobrescrever: " .. tostring(err))
+			print("[ecohub ERROR] Overwrite: " .. tostring(err))
 		end
 	end, "edit")
 
-	cfgSection:addButton("Deletar config", function()
+	cfgSection:addButton("Delete config", function()
 		local name = cfgListCtrl:Get()
 		if not name then return end
 		pcall(delfile, ConfigSettingsFolder .. "/" .. name .. ".json")
@@ -2225,20 +2140,20 @@ function Library:CreateWindow(windowname, windowinfo, folder)
 		cfgListCtrl:Set(nil)
 	end, "trash-2")
 
-	cfgSection:addButton("Atualizar lista", function()
+	cfgSection:addButton("Refresh list", function()
 		local nl = GetConfigList()
 		cfgListCtrl:SetList(nl)
 	end, "refresh-cw")
 
 	cfgSection:addSeparator()
 
-	cfgSection:addButton("Definir autoload", function()
+	cfgSection:addButton("Set autoload", function()
 		local name = cfgListCtrl:Get()
 		if not name then return end
 		pcall(writefile, ConfigSettingsFolder .. "/autoload.txt", name)
 	end, "star")
 
-	cfgSection:addButton("Remover autoload", function()
+	cfgSection:addButton("Remove autoload", function()
 		pcall(delfile, ConfigSettingsFolder .. "/autoload.txt")
 	end, "x-circle")
 
