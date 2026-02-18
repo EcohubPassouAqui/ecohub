@@ -250,20 +250,22 @@ Library.Icons = Icons
 local CHECK_TEXTURE = "rbxassetid://10709790644"
 
 local C = {
-	BG      = Color3.fromRGB(10,  10,  14),
-	SIDEBAR = Color3.fromRGB(7,   7,   10),
-	ELEM    = Color3.fromRGB(18,  16,  26),
-	SECT    = Color3.fromRGB(13,  11,  20),
-	HOVER   = Color3.fromRGB(28,  24,  40),
-	ACTIVE  = Color3.fromRGB(22,  18,  34),
+	BG      = Color3.fromRGB(15,  15,  15),
+	SIDEBAR = Color3.fromRGB(25,  25,  25),
+	ELEM    = Color3.fromRGB(70,  70,  70),
+	SECT    = Color3.fromRGB(30,  30,  30),
+	HOVER   = Color3.fromRGB(90,  90,  90),
+	ACTIVE  = Color3.fromRGB(55,  55,  55),
 	ACCENT  = Color3.fromRGB(220, 220, 220),
 	TEXT    = Color3.fromRGB(255, 255, 255),
-	DIM     = Color3.fromRGB(130, 120, 155),
-	OFF     = Color3.fromRGB(25,  22,  36),
+	DIM     = Color3.fromRGB(150, 150, 150),
+	OFF     = Color3.fromRGB(45,  45,  45),
 	CHECK   = Color3.fromRGB(45,  200, 85),
-	BORDER  = Color3.fromRGB(38,  30,  58),
-	SEP     = Color3.fromRGB(40,  32,  62),
-	KEYBG   = Color3.fromRGB(20,  18,  30),
+	BORDER  = Color3.fromRGB(25,  25,  25),
+	SEP     = Color3.fromRGB(60,  60,  60),
+	KEYBG   = Color3.fromRGB(35,  35,  35),
+	DDBG    = Color3.fromRGB(35,  35,  35),
+	DDBDR   = Color3.fromRGB(25,  25,  25),
 }
 
 local TI = {
@@ -652,14 +654,12 @@ local function BuildSection(sectionname, PageScroll)
 		VL.TextSize = 11
 		VL.TextXAlignment = Enum.TextXAlignment.Right
 
-		local Track = Instance.new("TextButton")
+		local Track = Instance.new("Frame")
 		Track.Parent = f
 		Track.BackgroundColor3 = C.OFF
 		Track.BorderSizePixel = 0
 		Track.Position = UDim2.new(0, 10, 0, 28)
 		Track.Size = UDim2.new(1, -20, 0, 7)
-		Track.AutoButtonColor = false
-		Track.Text = ""
 		Corner(Track, 3)
 
 		local Fill = Instance.new("Frame")
@@ -669,19 +669,38 @@ local function BuildSection(sectionname, PageScroll)
 		Fill.Size = UDim2.new((cur - mn) / (mx - mn), 0, 1, 0)
 		Corner(Fill, 3)
 
+		local Knob = Instance.new("Frame")
+		Knob.Parent = Track
+		Knob.AnchorPoint = Vector2.new(0.5, 0.5)
+		Knob.Position = UDim2.new((cur - mn) / (mx - mn), 0, 0.5, 0)
+		Knob.Size = UDim2.fromOffset(11, 11)
+		Knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Knob.ZIndex = 3
+		Knob.BorderSizePixel = 0
+		local knobCorner = Instance.new("UICorner")
+		knobCorner.CornerRadius = UDim.new(1, 0)
+		knobCorner.Parent = Knob
+
+		local TrackHit = Instance.new("TextButton")
+		TrackHit.Parent = f
+		TrackHit.BackgroundTransparency = 1
+		TrackHit.Position = UDim2.new(0, 10, 0, 20)
+		TrackHit.Size = UDim2.new(1, -20, 0, 18)
+		TrackHit.Text = ""
+		TrackHit.ZIndex = 4
+
 		local Drag = false
 		local function UpdateSlider(px)
 			local p = math.clamp((px - Track.AbsolutePosition.X) / Track.AbsoluteSize.X, 0, 1)
 			cur = math.floor(mn + (mx - mn) * p)
 			Fill.Size = UDim2.new(p, 0, 1, 0)
+			Knob.Position = UDim2.new(p, 0, 0.5, 0)
 			VL.Text = tostring(cur)
 			local ok, e = pcall(cb, cur)
 			if not ok then Err("Slider '" .. tostring(name) .. "': " .. tostring(e)) end
 		end
-		Track.MouseButton1Down:Connect(function()
+		TrackHit.MouseButton1Down:Connect(function()
 			Drag = true
-		end)
-		Track.MouseButton1Click:Connect(function()
 			local mp = UserInputService:GetMouseLocation()
 			UpdateSlider(mp.X)
 		end)
@@ -699,7 +718,9 @@ local function BuildSection(sectionname, PageScroll)
 		local ctrl = {}
 		function ctrl:Set(v)
 			cur = math.clamp(v, mn, mx)
-			Fill.Size = UDim2.new((cur - mn) / (mx - mn), 0, 1, 0)
+			local p = (cur - mn) / (mx - mn)
+			Fill.Size = UDim2.new(p, 0, 1, 0)
+			Knob.Position = UDim2.new(p, 0, 0.5, 0)
 			VL.Text = tostring(cur)
 		end
 		function ctrl:Get() return cur end
@@ -816,7 +837,7 @@ local function BuildSection(sectionname, PageScroll)
 
 		local DL = Instance.new("Frame")
 		DL.Parent = Wrapper
-		DL.BackgroundColor3 = C.SECT
+		DL.BackgroundColor3 = C.DDBG
 		DL.BorderSizePixel = 0
 		DL.Position = UDim2.new(0, 0, 0, 30)
 		DL.Size = UDim2.new(1, 0, 0, 0)
@@ -824,7 +845,7 @@ local function BuildSection(sectionname, PageScroll)
 		DL.ClipsDescendants = true
 		DL.Visible = false
 		Corner(DL, 5)
-		MkStroke(DL)
+		MkStroke(DL, C.DDBDR)
 
 		local DS2 = Instance.new("ScrollingFrame")
 		DS2.Parent = DL
@@ -1056,14 +1077,14 @@ local function BuildSection(sectionname, PageScroll)
 
 		local Panel = Instance.new("Frame")
 		Panel.Parent = Wrapper
-		Panel.BackgroundColor3 = C.SECT
+		Panel.BackgroundColor3 = C.DDBG
 		Panel.BorderSizePixel = 0
 		Panel.Position = UDim2.new(0, 0, 0, 30)
 		Panel.Size = UDim2.new(1, 0, 0, 0)
 		Panel.ClipsDescendants = true
 		Panel.Visible = false
 		Corner(Panel, 5)
-		MkStroke(Panel)
+		MkStroke(Panel, C.DDBDR)
 
 		local function Refresh()
 			CurColor = Color3.fromHSV(H, S, V)
@@ -1078,14 +1099,14 @@ local function BuildSection(sectionname, PageScroll)
 			{l="S", g=function() return S end, s=function(v) S=v end, m=100},
 			{l="V", g=function() return V end, s=function(v) V=v end, m=100},
 		}
-		local panelH = #chs * 28 + 10
+		local panelH = #chs * 30 + 12
 
 		for i, ch in ipairs(chs) do
 			local Row = Instance.new("Frame")
 			Row.Parent = Panel
 			Row.BackgroundTransparency = 1
-			Row.Position = UDim2.new(0, 8, 0, 6 + (i - 1) * 28)
-			Row.Size = UDim2.new(1, -16, 0, 22)
+			Row.Position = UDim2.new(0, 8, 0, 6 + (i - 1) * 30)
+			Row.Size = UDim2.new(1, -16, 0, 24)
 
 			local RL = Instance.new("TextLabel")
 			RL.Parent = Row
@@ -1096,14 +1117,12 @@ local function BuildSection(sectionname, PageScroll)
 			RL.TextColor3 = C.ACCENT
 			RL.TextSize = 10
 
-			local RT = Instance.new("TextButton")
+			local RT = Instance.new("Frame")
 			RT.Parent = Row
 			RT.BackgroundColor3 = C.OFF
 			RT.BorderSizePixel = 0
 			RT.Position = UDim2.new(0, 20, 0.5, -3)
-			RT.Size = UDim2.new(1, -60, 0, 7)
-			RT.AutoButtonColor = false
-			RT.Text = ""
+			RT.Size = UDim2.new(1, -58, 0, 7)
 			Corner(RT, 3)
 
 			local RF = Instance.new("Frame")
@@ -1113,25 +1132,55 @@ local function BuildSection(sectionname, PageScroll)
 			RF.Size = UDim2.new(ch.g(), 0, 1, 0)
 			Corner(RF, 3)
 
+			local RDot = Instance.new("Frame")
+			RDot.Parent = RT
+			RDot.AnchorPoint = Vector2.new(0.5, 0.5)
+			RDot.Position = UDim2.new(ch.g(), 0, 0.5, 0)
+			RDot.Size = UDim2.fromOffset(11, 11)
+			RDot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			RDot.ZIndex = 3
+			RDot.BorderSizePixel = 0
+			local rdCorner = Instance.new("UICorner")
+			rdCorner.CornerRadius = UDim.new(1, 0)
+			rdCorner.Parent = RDot
+
+			local RTHit = Instance.new("TextButton")
+			RTHit.Parent = Row
+			RTHit.BackgroundTransparency = 1
+			RTHit.Position = UDim2.new(0, 20, 0.5, -8)
+			RTHit.Size = UDim2.new(1, -58, 0, 18)
+			RTHit.Text = ""
+			RTHit.ZIndex = 4
+
 			local RV = Instance.new("TextLabel")
 			RV.Parent = Row
 			RV.BackgroundTransparency = 1
-			RV.Position = UDim2.new(1, -36, 0, 0)
-			RV.Size = UDim2.new(0, 34, 1, 0)
+			RV.Position = UDim2.new(1, -34, 0, 0)
+			RV.Size = UDim2.new(0, 32, 1, 0)
 			RV.Font = Enum.Font.Gotham
 			RV.Text = tostring(math.floor(ch.g() * ch.m))
 			RV.TextColor3 = C.DIM
 			RV.TextSize = 9
 
 			local dr = false
-			RT.MouseButton1Down:Connect(function() dr = true end)
+
+			local function UpdateFromX(px)
+				local p = math.clamp((px - RT.AbsolutePosition.X) / RT.AbsoluteSize.X, 0, 1)
+				RF.Size = UDim2.new(p, 0, 1, 0)
+				RDot.Position = UDim2.new(p, 0, 0.5, 0)
+				RV.Text = tostring(math.floor(p * ch.m))
+				ch.s(p)
+				Refresh()
+			end
+
+			RTHit.MouseButton1Down:Connect(function()
+				dr = true
+				local mp = UserInputService:GetMouseLocation()
+				UpdateFromX(mp.X)
+			end)
 			UserInputService.InputChanged:Connect(function(inp)
 				if dr and inp.UserInputType == Enum.UserInputType.MouseMovement then
-					local p = math.clamp((inp.Position.X - RT.AbsolutePosition.X) / RT.AbsoluteSize.X, 0, 1)
-					RF.Size = UDim2.new(p, 0, 1, 0)
-					RV.Text = tostring(math.floor(p * ch.m))
-					ch.s(p)
-					Refresh()
+					UpdateFromX(inp.Position.X)
 				end
 			end)
 			UserInputService.InputEnded:Connect(function(inp)
