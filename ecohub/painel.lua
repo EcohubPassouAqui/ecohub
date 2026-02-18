@@ -1225,7 +1225,98 @@ local function BuildSection(sectionname, PageScroll)
 	return SecObj
 end
 
-function Library:CreateWindow(windowname, windowinfo)
+function Library:CreateWindow(windowname, windowinfo, folder)
+	local HttpService = game:GetService("HttpService")
+	folder = folder or "ecohub"
+
+	local ConfigFolder        = folder
+	local ConfigSettingsFolder = folder .. "/configs"
+
+	local function EnsureFolders()
+		pcall(function()
+			if not isfolder(ConfigFolder) then makefolder(ConfigFolder) end
+			if not isfolder(ConfigSettingsFolder) then makefolder(ConfigSettingsFolder) end
+		end)
+	end
+	EnsureFolders()
+
+	local function GetConfigList()
+		local out = {}
+		local ok, list = pcall(listfiles, ConfigSettingsFolder)
+		if not ok then return out end
+		for _, file in ipairs(list) do
+			if file:sub(-5) == ".json" then
+				local name = file:match("[/\\]([^/\\]+)%.json$")
+				if name and name ~= "autoload" then
+					table.insert(out, name)
+				end
+			end
+		end
+		table.sort(out)
+		return out
+	end
+
+	local SaveIgnore = {}
+
+	local function SaveConfig(name)
+		if not name or name:gsub(" ", "") == "" then
+			return false, "nome invalido"
+		end
+		local data = { objects = {} }
+		for idx, opt in next, Library.Options do
+			if SaveIgnore[idx] then continue end
+			local t = opt.Type
+			if t == "Toggle" then
+				table.insert(data.objects, { type = "Toggle", idx = idx, value = opt.Value })
+			elseif t == "Slider" then
+				table.insert(data.objects, { type = "Slider", idx = idx, value = opt.Value })
+			elseif t == "Dropdown" then
+				table.insert(data.objects, { type = "Dropdown", idx = idx, value = opt.Value })
+			elseif t == "ColorPicker" then
+				if opt.Value then
+					table.insert(data.objects, { type = "ColorPicker", idx = idx, value = opt.Value:ToHex() })
+				end
+			elseif t == "Keybind" then
+				table.insert(data.objects, { type = "Keybind", idx = idx, value = opt.Value })
+			elseif t == "TextBox" then
+				table.insert(data.objects, { type = "TextBox", idx = idx, value = opt.Value })
+			end
+		end
+		local ok2, encoded = pcall(function() return HttpService:JSONEncode(data) end)
+		if not ok2 then return false, "encode falhou" end
+		local ok3, err3 = pcall(writefile, ConfigSettingsFolder .. "/" .. name .. ".json", encoded)
+		if not ok3 then return false, "writefile: " .. tostring(err3) end
+		return true
+	end
+
+	local function LoadConfig(name)
+		if not name then return false, "nome invalido" end
+		local path = ConfigSettingsFolder .. "/" .. name .. ".json"
+		local ok, content = pcall(readfile, path)
+		if not ok then return false, "arquivo nao encontrado" end
+		local ok2, decoded = pcall(function() return HttpService:JSONDecode(content) end)
+		if not ok2 then return false, "decode falhou" end
+		for _, obj in ipairs(decoded.objects or {}) do
+			task.spawn(function()
+				local opt = Library.Options[obj.idx]
+				if not opt then return end
+				if obj.type == "Toggle" then
+					opt:Set(obj.value)
+				elseif obj.type == "Slider" then
+					opt:Set(tonumber(obj.value) or 0)
+				elseif obj.type == "Dropdown" then
+					opt:Set(obj.value)
+				elseif obj.type == "ColorPicker" then
+					local ok3, col = pcall(Color3.fromHex, obj.value)
+					if ok3 then opt:Set(col) end
+				elseif obj.type == "TextBox" then
+					opt:Set(tostring(obj.value))
+				end
+			end)
+		end
+		return true
+	end
+
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "ecohub_gui"
 	ScreenGui.Parent = game:GetService("CoreGui")
@@ -1316,7 +1407,7 @@ function Library:CreateWindow(windowname, windowinfo)
 	TabScroll.BackgroundTransparency = 1
 	TabScroll.BorderSizePixel = 0
 	TabScroll.Position = UDim2.new(0, 6, 0, 6)
-	TabScroll.Size = UDim2.new(1, -12, 1, -12)
+	TabScroll.Size = UDim2.new(1, -12, 1, -42)
 	TabScroll.ScrollBarThickness = 2
 	TabScroll.ScrollBarImageColor3 = C.ACCENT
 	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -1327,12 +1418,151 @@ function Library:CreateWindow(windowname, windowinfo)
 	TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	TabLayout.Padding = UDim.new(0, 3)
 
+	local SettingsTabBtn = Instance.new("TextButton")
+	SettingsTabBtn.Parent = Sidebar
+	SettingsTabBtn.BackgroundColor3 = C.ELEM
+	SettingsTabBtn.BackgroundTransparency = 1
+	SettingsTabBtn.BorderSizePixel = 0
+	SettingsTabBtn.AnchorPoint = Vector2.new(0, 1)
+	SettingsTabBtn.Position = UDim2.new(0, 6, 1, -6)
+	SettingsTabBtn.Size = UDim2.new(1, -12, 0, 28)
+	SettingsTabBtn.AutoButtonColor = false
+	SettingsTabBtn.Text = ""
+	Corner(SettingsTabBtn, 5)
+
+	local SettingsIcon = Instance.new("ImageLabel")
+	SettingsIcon.BackgroundTransparency = 1
+	SettingsIcon.Image = GetIconId("settings") or ""
+	SettingsIcon.ImageColor3 = C.DIM
+	SettingsIcon.Size = UDim2.new(0, 14, 0, 14)
+	SettingsIcon.Position = UDim2.new(0, 6, 0.5, 0)
+	SettingsIcon.AnchorPoint = Vector2.new(0, 0.5)
+	SettingsIcon.ScaleType = Enum.ScaleType.Fit
+	SettingsIcon.Parent = SettingsTabBtn
+
+	local SettingsLbl = Instance.new("TextLabel")
+	SettingsLbl.BackgroundTransparency = 1
+	SettingsLbl.Position = UDim2.new(0, 24, 0, 0)
+	SettingsLbl.Size = UDim2.new(1, -32, 1, 0)
+	SettingsLbl.Font = Enum.Font.GothamSemibold
+	SettingsLbl.Text = "Settings"
+	SettingsLbl.TextColor3 = C.DIM
+	SettingsLbl.TextSize = 11
+	SettingsLbl.TextXAlignment = Enum.TextXAlignment.Left
+	SettingsLbl.Parent = SettingsTabBtn
+
+	local SettingsUnderline = Instance.new("Frame")
+	SettingsUnderline.Parent = SettingsTabBtn
+	SettingsUnderline.BackgroundColor3 = C.ACCENT
+	SettingsUnderline.BorderSizePixel = 0
+	SettingsUnderline.AnchorPoint = Vector2.new(0.5, 1)
+	SettingsUnderline.Position = UDim2.new(0.5, 0, 1, -1)
+	SettingsUnderline.Size = UDim2.new(0, 0, 0, 1)
+	SettingsUnderline.Visible = false
+	Corner(SettingsUnderline, 1)
+
 	local ContentArea = Instance.new("Frame")
 	ContentArea.Parent = Body
 	ContentArea.BackgroundTransparency = 1
 	ContentArea.BorderSizePixel = 0
 	ContentArea.Position = UDim2.new(0, 126, 0, 4)
 	ContentArea.Size = UDim2.new(1, -130, 1, -8)
+
+	local SettingsPage = Instance.new("Frame")
+	SettingsPage.Parent = ContentArea
+	SettingsPage.BackgroundTransparency = 1
+	SettingsPage.BorderSizePixel = 0
+	SettingsPage.Size = UDim2.new(1, 0, 1, 0)
+	SettingsPage.Visible = false
+
+	local SettingsScroll = Instance.new("ScrollingFrame")
+	SettingsScroll.Parent = SettingsPage
+	SettingsScroll.BackgroundTransparency = 1
+	SettingsScroll.BorderSizePixel = 0
+	SettingsScroll.Size = UDim2.new(1, 0, 1, 0)
+	SettingsScroll.ScrollBarThickness = 2
+	SettingsScroll.ScrollBarImageColor3 = C.ACCENT
+	SettingsScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+	SettingsScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
+	local SPL = Instance.new("UIListLayout")
+	SPL.Parent = SettingsScroll
+	SPL.SortOrder = Enum.SortOrder.LayoutOrder
+	SPL.Padding = UDim.new(0, 5)
+	local SPP = Instance.new("UIPadding")
+	SPP.Parent = SettingsScroll
+	SPP.PaddingTop = UDim.new(0, 2)
+	SPP.PaddingBottom = UDim.new(0, 6)
+	SPP.PaddingRight = UDim.new(0, 2)
+
+	local cfgSection = BuildSection("Configuracoes", SettingsScroll)
+
+	local cfgNameCtrl  = cfgSection:addTextBox("Nome do config", "minha_config", nil)
+	local cfgListCtrl  = cfgSection:addDropdown("Configs salvos", GetConfigList(), nil)
+
+	cfgSection:addButton("Salvar config", function()
+		local name = cfgNameCtrl:Get()
+		if not name or name:gsub(" ", "") == "" then return end
+		local ok, err = SaveConfig(name)
+		if not ok then
+			Err("Salvar: " .. tostring(err))
+		else
+			local nl = GetConfigList()
+			cfgListCtrl:SetList(nl)
+			cfgListCtrl:Set(name)
+		end
+	end, "save")
+
+	cfgSection:addButton("Carregar config", function()
+		local name = cfgListCtrl:Get()
+		if not name then return end
+		local ok, err = LoadConfig(name)
+		if not ok then Err("Carregar: " .. tostring(err)) end
+	end, "download")
+
+	cfgSection:addButton("Sobrescrever config", function()
+		local name = cfgListCtrl:Get()
+		if not name then return end
+		local ok, err = SaveConfig(name)
+		if not ok then Err("Sobrescrever: " .. tostring(err)) end
+	end, "edit")
+
+	cfgSection:addButton("Deletar config", function()
+		local name = cfgListCtrl:Get()
+		if not name then return end
+		pcall(delfile, ConfigSettingsFolder .. "/" .. name .. ".json")
+		local nl = GetConfigList()
+		cfgListCtrl:SetList(nl)
+		cfgListCtrl:Set(nil)
+	end, "trash-2")
+
+	cfgSection:addButton("Atualizar lista", function()
+		local nl = GetConfigList()
+		cfgListCtrl:SetList(nl)
+	end, "refresh-cw")
+
+	cfgSection:addSeparator()
+
+	cfgSection:addButton("Definir autoload", function()
+		local name = cfgListCtrl:Get()
+		if not name then return end
+		pcall(writefile, ConfigSettingsFolder .. "/autoload.txt", name)
+	end, "star")
+
+	cfgSection:addButton("Remover autoload", function()
+		pcall(delfile, ConfigSettingsFolder .. "/autoload.txt")
+	end, "x-circle")
+
+	SaveIgnore["_cfg_name"] = true
+	SaveIgnore["_cfg_list"] = true
+
+	task.spawn(function()
+		task.wait(0.5)
+		local ok, content = pcall(readfile, ConfigSettingsFolder .. "/autoload.txt")
+		if ok and content and content:gsub("%s","") ~= "" then
+			LoadConfig(content:gsub("%s",""))
+		end
+	end)
 
 	local dragging, dragStart, startPos, dragInput
 	TitleBar.InputBegan:Connect(function(inp)
@@ -1362,17 +1592,16 @@ function Library:CreateWindow(windowname, windowinfo)
 	end)
 
 	local Minimized = false
-	local FullSize = UDim2.new(0, 520, 0, 340)
-	local MiniSize = UDim2.new(0, 520, 0, 32)
+	local FullSize   = UDim2.new(0, 520, 0, 340)
+	local MiniSize   = UDim2.new(0, 520, 0, 32)
 
 	local function DoMinimize(toMin)
 		Minimized = toMin
 		if toMin then
+			Body.Visible = false
 			Tw(Main, {Size = MiniSize}, TI.Slow)
-			task.delay(0.1, function()
-				if Minimized then Body.Visible = false end
-			end)
 		else
+			Main.Size = MiniSize
 			Body.Visible = true
 			Tw(Main, {Size = FullSize}, TI.Slow)
 		end
@@ -1381,20 +1610,54 @@ function Library:CreateWindow(windowname, windowinfo)
 	local ToggleKey = Enum.KeyCode.RightAlt
 	UserInputService.InputBegan:Connect(function(inp, gp)
 		if not gp and inp.KeyCode == ToggleKey then
-			if not Main.Visible then
-				Main.Visible = true
-				Body.Visible = true
-				Minimized = false
-				Main.Size = MiniSize
-				Tw(Main, {Size = FullSize}, TI.Slow)
-			else
-				DoMinimize(not Minimized)
-			end
+			DoMinimize(not Minimized)
 		end
 	end)
 
 	local Pages = {}
 	local ActiveTab = nil
+	local SettingsActive = false
+
+	local function DeactivateAll()
+		for _, p in pairs(Pages) do
+			p.Page.Visible = false
+			Tw(p.Tab, {BackgroundTransparency = 1, BackgroundColor3 = C.ELEM}, TI.Fast)
+			p.SetColor(C.DIM)
+			p.Underline.Visible = false
+		end
+		SettingsPage.Visible = false
+		Tw(SettingsTabBtn, {BackgroundTransparency = 1, BackgroundColor3 = C.ELEM}, TI.Fast)
+		SettingsLbl.TextColor3 = C.DIM
+		SettingsIcon.ImageColor3 = C.DIM
+		SettingsUnderline.Visible = false
+		ActiveTab = nil
+		SettingsActive = false
+	end
+
+	SettingsTabBtn.MouseButton1Click:Connect(function()
+		DeactivateAll()
+		SettingsActive = true
+		SettingsPage.Visible = true
+		SettingsPage.Position = UDim2.new(0.04, 0, 0, 0)
+		Tw(SettingsPage, {Position = UDim2.new(0, 0, 0, 0)}, TI.Med)
+		Tw(SettingsTabBtn, {BackgroundTransparency = 0, BackgroundColor3 = C.ACTIVE}, TI.Fast)
+		SettingsLbl.TextColor3 = C.TEXT
+		SettingsIcon.ImageColor3 = C.TEXT
+		SettingsUnderline.Visible = true
+		SettingsUnderline.Size = UDim2.new(0, 0, 0, 1)
+		Tw(SettingsUnderline, {Size = UDim2.new(0.8, 0, 0, 1)}, TI.Slow)
+	end)
+	SettingsTabBtn.MouseEnter:Connect(function()
+		if not SettingsActive then
+			Tw(SettingsTabBtn, {BackgroundTransparency = 0, BackgroundColor3 = C.HOVER}, TI.Fast)
+		end
+	end)
+	SettingsTabBtn.MouseLeave:Connect(function()
+		if not SettingsActive then
+			Tw(SettingsTabBtn, {BackgroundTransparency = 1}, TI.Fast)
+		end
+	end)
+
 	local Window = {}
 
 	function Window:addPage(pagename, iconName)
@@ -1492,12 +1755,7 @@ function Library:CreateWindow(windowname, windowinfo)
 		})
 
 		local function SelectTab()
-			for _, p in pairs(Pages) do
-				p.Page.Visible = false
-				Tw(p.Tab, {BackgroundTransparency = 1, BackgroundColor3 = C.ELEM}, TI.Fast)
-				p.SetColor(C.DIM)
-				p.Underline.Visible = false
-			end
+			DeactivateAll()
 			PageFrame.Visible = true
 			PageFrame.Position = UDim2.new(0.04, 0, 0, 0)
 			Tw(PageFrame, {Position = UDim2.new(0, 0, 0, 0)}, TI.Med)
@@ -1538,6 +1796,12 @@ function Library:CreateWindow(windowname, windowinfo)
 
 	function Window:setToggleKey(keyCode)
 		ToggleKey = keyCode
+	end
+
+	function Window:setIgnoreIndexes(list)
+		for _, k in ipairs(list) do
+			SaveIgnore[k] = true
+		end
 	end
 
 	return Window
