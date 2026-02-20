@@ -2,7 +2,6 @@ local TweenService     = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local TextService      = game:GetService("TextService")
 
--- Executor compatibility (Xeno, Solara, Synapse, etc.)
 local _readfile   = (typeof(readfile)   == "function" and readfile)   or (syn and syn.readfile)   or nil
 local _writefile  = (typeof(writefile)  == "function" and writefile)  or (syn and syn.writefile)  or nil
 local _listfiles  = (typeof(listfiles)  == "function" and listfiles)  or (syn and syn.listfiles)  or nil
