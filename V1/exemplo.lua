@@ -1,5 +1,5 @@
 -- // Lib Atualizada
-local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/EcohubPassouAqui/v2/refs/heads/main/Interface%20V1/Librarys.lua"))()
+local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/EcohubPassouAqui/EcoHub/refs/heads/main/V1/GCsdUGEmzBd7xaIxWqvMGSZF3EcB53.lua"))()
 
 -- // Window Eco HUb
 local gameName = "[ Eco Hub ]"
