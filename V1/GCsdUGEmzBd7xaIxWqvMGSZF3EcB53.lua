@@ -41,7 +41,7 @@ pcall(function() if gethui then cleanOld(gethui()) end end)
 -- // Icon System
 local _iconsOk, _iconsData = pcall(function()
 	return loadstring(game:HttpGet(
-		"https://raw.githubusercontent.com/EcohubPassouAqui/v2/refs/heads/main/icons"
+		"https://raw.githubusercontent.com/EcohubPassouAqui/EcoHub/refs/heads/main/icons"
 	))()
 end)
 if not _iconsOk then
